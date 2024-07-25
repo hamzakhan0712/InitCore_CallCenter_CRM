@@ -51,23 +51,11 @@ A Customer Relationship Management (CRM) system built with Django.
 4. **Access the application**:
     Open your web browser and go to `http://localhost:8000`.
 
-## Testing
-
-1. **Run tests**:
-    ```bash
-    python manage.py test
-    ```
-
 ## Deployment
 
-1. **Collect static files**:
-    ```bash
-    python manage.py collectstatic
-    ```
+1. **Configure your web server** (e.g., Gunicorn, Nginx) to serve the Django application.You have to setup Websocket and daphne too for prodcution it uses asgi.py whereas the regular produciton uses wsgi.py
 
-2. **Configure your web server** (e.g., Gunicorn, Nginx) to serve the Django application.You have to setup Websocket and daphne too for prodcution it uses asgi.py whereas the regular produciton uses wsgi.py
+2. **Set up environment variables** in your production environment.
 
-3. **Set up environment variables** in your production environment.
-
-4. **Run database migrations** and create a superuser in the production environment.
+3. **Run database migrations** and create a superuser in the production environment.
 
