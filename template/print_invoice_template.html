@@ -1,0 +1,175 @@
+{% load static %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+</head>
+
+<body>
+    <div class="container">
+        <div id="invoice-preview" class="invoice-preview">
+            <table class="header">
+                <tr>
+                    <td>
+                        <div class="logo">
+                            {% if company.company_logo %}
+                                <img src="{{ media_url }}/logos/pro-logo.png" alt="Company Logo">
+                            {% else %}
+                                <p>No logo available</p>
+                            {% endif %}
+                        </div>
+                        <div class="invoice-heading">
+                            <p>{{ company.company_name }}</p>
+                            <p>{{ company.company_tagline }}</p>
+                        </div>
+                    </td>
+                    <td class="invoice-title">
+                        <div>
+                            <p>INVOICE</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        
+            <table class="upper-mid">
+                <tr>
+                    <td class="customer-details">
+                        <div class="detail">
+                            <label for="date">Date & Time:</label>
+                            <span id="date">{{ invoice.date }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="invoice_number">Invoice Number:</label>
+                            <span id="invoice_number">{{ invoice.unique_invoice_number }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="customer_id">Customer Unique ID:</label>
+                            <span id="customer_id">{{ invoice.customer.customer_id }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="package_details">Package Details:</label>
+                            <span id="package_details">{{ invoice.customer.package.name }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="customer_name">Customer Name:</label>
+                            <span id="customer_name">{{ invoice.customer.lead.full_name }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="customer_phone">Phone:</label>
+                            <span id="customer_phone">{{ invoice.customer.lead.contact_number }}</span>
+                        </div>
+                        <div class="detail">
+                            <label for="customer_pan">PAN:</label>
+                            <span id="customer_pan">{{ invoice.customer.pan_number }}</span>
+                        </div>
+                    </td>
+                    <td class="company-details">
+                        <div class="detail">
+                            <p class="company-name">{{ company.company_name }}</p>
+                        </div>
+                        <div class="detail">
+                            {{ company.company_address }}
+                        </div>
+                        <div class="detail">
+                            {{ company.company_phone_number }}
+                        </div>
+                        <div class="detail">
+                            {{ company.company_email }}
+                        </div>
+                        <div class="detail">
+                            GSTIN : {{ company.company_gstin }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        
+            <table class="lower-mid">
+                <thead>
+                    <tr>
+                        <th>Sr. No.</th>
+                        <th>Payment Date</th>
+                        <th>Payment Mode</th>
+                        <th>Amount with GST</th>
+                        <th>Tax Amount</th>
+                        <th>Paid Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>{{ invoice.customer.payment_date }}</td>
+                        <td>{{ invoice.customer.payment_method }}</td>
+                        <td>₹ {{ invoice.customer.amount_with_gst|floatformat:0|intcomma }}/-</td>
+                        <td>₹ {{ invoice.customer.tax_amount|floatformat:0|intcomma }}/-</td>
+                        <td>₹ {{ invoice.customer.amount_paid|floatformat:0|intcomma }}/-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="amount-in-words">
+                <td class="label_amount_in_words">
+                    <label for="amount_in_words">Amount In Words:</label>
+                </td>
+                <td class="span_amount_in_words">
+                    <span id="amount_in_words">Rs. {{ invoice.amount_in_words }} ONLY</span>
+                </td>
+            </table>
+
+            <table class="package-details">
+                <thead>
+                    <tr>
+                        <th>Customer Id</th>
+                        <th>Package</th>
+                        <th>Service Start Date</th>
+                        <th>Service End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ invoice.customer.customer_id }}</td>
+                        <td>{{ invoice.customer.package.name }}</td>
+                        <td>{{ invoice.customer.package_start_date }}</td>
+                        <td>{{ invoice.customer.package_end_date }}</td>
+                    </tr>
+                </tbody>
+            </table>
+                
+            <div class="bottom">
+                <div class="thank-you-section">
+                    <h2>Thank you!</h2>
+                    <p>{{ company.company_about }}</p>
+                </div>
+                <div class="summary-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">SUMMARY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount with GST</td>
+                                <td>₹ {{ invoice.customer.amount_with_gst|floatformat:0|intcomma }}/-</td>
+                            </tr>
+                            <tr>
+                                <td>Tax Amount</td>
+                                <td>₹ {{ invoice.customer.tax_amount|floatformat:0|intcomma }}/-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GRAND TOTAL</strong></td>
+                                <td><strong>Rs. {{ invoice.customer.amount_paid|floatformat:0|intcomma }}/-</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+</body>
+</html>
+
+

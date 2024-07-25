@@ -1,0 +1,418 @@
+{% load static %}
+
+<div class="navbar">
+  <div class="nav-left">
+    <span id="menu-toggle" aria-label="Toggle Sidebar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+    </span>
+    <a href="{% url 'dashboard' %}">
+      {% if company and company.company_logo %}
+        <img class="navbar-brand" src="{{ company.company_logo.url }}" alt="Company Logo">
+      {% else %}
+        <img class="navbar-brand" src="{% static 'img/logo.png' %}" alt="Company Logo">
+      {% endif %}
+    </a>
+  </div>
+  
+  <div class="nav-mid">
+    {% if messages %}
+      <div class="message-block" id="messageBlock">
+        <ul class="messages">
+          {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="nav-right">
+    {% if request.user.is_superuser %}
+      <span class="username">{{ request.user.username }}</span>
+    {% else %}
+      <span class="username">{{ request.user.get_full_name }}</span>
+    {% endif %}
+    <div class="dropdown">
+      <svg class="dropbtn" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      <div class="arrow-up"></div>
+      <div class="dropdown-content">
+        {% if request.user.is_superuser %}
+          <a href="{% url 'settings' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Settings</span>
+          </a>
+        {% endif %}
+
+        {% if not request.user.is_superuser %}
+          <a href="{% url 'edit_user' user_id=request.user.profile.id %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="10" r="3"/>
+                <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
+            </svg>
+            <span>Profile</span>
+          </a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="dropdown-logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Logout
+          </button>
+        </form>
+      </div>
+    </div>  
+  </div>
+
+  {% if not request.user.is_superuser %}
+    <div class="break-container">
+      <button onclick="startBreak()">Start Break</button>
+    </div>
+    <div class="nav-overlay" id="nav-overlay">
+      <div class="nav-modal" id="breakModal">
+        <div class="break-start-container">
+          <h2>Select Break Type</h2>
+          <select id="breakType">
+            {% for break_type in break_types %}
+              <option value="{{ break_type.id }}">{{ break_type.name }}</option>
+            {% endfor %}
+          </select>
+          <button onclick="startSelectedBreak()">Start</button>
+          <span class="nav-close-modal" onclick="closeModal()">&times;</span>
+        </div>
+      </div>
+      <div class="break-timer" id="breakTimer" style="display: none;">
+        <p id="timerDisplay">00:00</p>
+        <button onclick="endBreak()">End Break</button>
+      </div>
+    </div>
+    <script>
+        let breakTimerInterval;
+        let startTime;
+        let socket = null;
+
+        function connectWebSocket(userId) {
+          if (!socket) {
+            socket = new WebSocket(`ws://${window.location.host}/ws/break-monitor/${userId}/`);
+            socket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message received:', data);
+                if (data.on_break) {
+                    showBreakOverlay(data);
+                } else {
+                    hideBreakOverlay();
+                }
+            };
+            socket.onclose = function (event) {
+                console.error('WebSocket closed unexpectedly');
+            };
+          }
+        }
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const userId = "{{ request.user.id }}";
+            fetchBreakState(userId);
+        });
+
+        function fetchBreakState(userId) {
+            fetch(`/break_state/${userId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.on_break) {
+                        showBreakOverlay(data);
+                        connectWebSocket(userId);
+                    } else {
+                        hideBreakOverlay();
+                        disconnectWebSocket(); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching break state:', error);
+                    hideBreakOverlay();
+                    disconnectWebSocket();
+                });
+        }
+
+        function showBreakOverlay(data) {
+            document.getElementById('breakTimer').style.display = 'block';
+            document.getElementById('timerDisplay').textContent = '00:00';
+            startTime = new Date(data.start_time);
+            updateTimer();
+            breakTimerInterval = setInterval(updateTimer, 1000);
+
+            document.getElementById('nav-overlay').style.display = 'block';
+            document.getElementById('breakModal').style.display = 'none';
+        }
+
+        function hideBreakOverlay() {
+            clearInterval(breakTimerInterval);
+            document.getElementById('timerDisplay').textContent = '00:00';
+            document.getElementById('breakTimer').style.display = 'none';
+
+            document.getElementById('nav-overlay').style.display = 'none';
+        }
+
+        function startBreak() {
+            const userId = "{{ request.user.id }}";
+            connectWebSocket(userId); 
+
+            document.getElementById('nav-overlay').style.display = 'block';
+            document.getElementById('breakModal').style.display = 'block';
+        }
+
+        function startSelectedBreak() {
+          const breakType = document.getElementById('breakType').value;
+          const userId = "{{ request.user.custom_id }}";
+          const action = {
+              'action': 'start_break',
+              'user_id': userId,
+              'break_type_id': breakType,
+          };
+          socket.send(JSON.stringify(action));
+      
+          document.getElementById('breakModal').style.display = 'none';
+      
+          showBreakOverlay({
+              on_break: true,
+              start_time: new Date().toISOString(),
+          });
+        }
+      
+
+        function updateTimer() {
+            const currentTime = new Date();
+            const elapsedTime = (currentTime - startTime) / 1000;
+
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = Math.floor(elapsedTime % 60);
+
+            const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = formattedTime;
+        }
+
+        function endBreak() {
+          clearInterval(breakTimerInterval);
+          document.getElementById('timerDisplay').textContent = '00:00';
+          document.getElementById('breakTimer').style.display = 'none';
+          document.getElementById('nav-overlay').style.display = 'none';
+      
+          const userId = "{{ request.user.custom_id }}";
+          const action = {
+              'action': 'end_break',
+              'user_id': userId,
+          };
+          socket.send(JSON.stringify(action));
+      }
+      
+        function closeModal() {
+            document.getElementById('breakModal').style.display = 'none';
+            document.getElementById('nav-overlay').style.display = 'none';
+        }
+    </script>
+
+  {% endif %}
+
+</div>
+
+<div class="sidebar">
+  <ul class="sidebar-ul">
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'dashboard' %}" data-tooltip="Dashboard">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    {% if not request.user.profile.role == 'Agent' %}
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'staff_list' %}" data-tooltip="Staff">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Staff</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link"  href="{% url 'monitor_users' %}" data-tooltip="Monitor User" >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+        <span>Monitor User</span>
+      </a>
+    </li>
+    {% endif %}
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'lead_list' %}" data-tooltip="Leads">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-contact"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"/><rect width="18" height="18" x="3" y="4" rx="2"/><circle cx="12" cy="10" r="2"/><line x1="8" x2="8" y1="2" y2="4"/><line x1="16" x2="16" y1="2" y2="4"/></svg>
+        <span>Leads</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'lead_transfers' %}" data-tooltip="Lead Transfers">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-repeat"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span>Lead Transfers</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'paid_customers' %}" data-tooltip="Paid Customers">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hand-coins"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>
+        <span>Paid Customers</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'sales' %}" data-tooltip="Sales">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-indian-rupee"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
+        <span>Sales</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'attendance' %}" data-tooltip="Attendance">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Attendance</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'analytics' %}" data-tooltip="Analytics">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-3"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        <span>Analytics</span>
+      </a>
+    </li>
+    <li class="sidebar-li">
+      <a class="sidebar-link" href="{% url 'complaints_list' %}" data-tooltip="Complaints">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Complaints</span>
+      </a>
+    </li>
+    {% if not request.user.profile.role == 'Agent' %}
+      <li class="sidebar-li">
+        <a class="sidebar-link" href="{% url 'reports' %}" data-tooltip="Reports">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          <span>Reports</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', (event) => {
+    document.querySelector('.dropbtn').addEventListener('click', function() {
+        var dropdownContent = document.querySelector('.dropdown-content');
+        dropdownContent.classList.toggle('show');
+        
+        var arrowUp = dropdownContent.previousElementSibling;
+        if (dropdownContent.classList.contains('show')) {
+            arrowUp.classList.add('show');
+        } else {
+            arrowUp.classList.remove('show');
+        }
+    });
+
+      window.onclick = function(event) {
+          if (!event.target.matches('.dropbtn')) {
+              var dropdowns = document.getElementsByClassName("dropdown-content");
+              for (var i = 0; i < dropdowns.length; i++) {
+                  var openDropdown = dropdowns[i];
+                  if (openDropdown.classList.contains('show')) {
+                      openDropdown.classList.remove('show');
+                      openDropdown.previousElementSibling.classList.remove('show');
+                  }
+              }
+          }
+      };
+  });
+
+
+
+  const sidebar = document.querySelector('.sidebar');
+  const menuToggle = document.querySelector('#menu-toggle');
+
+  menuToggle.addEventListener('click', function () {
+    sidebar.classList.toggle('show');
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+      sidebar.classList.remove('show');
+    }
+  });
+
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const sidebarItems = document.querySelectorAll('.sidebar-li');
+
+    sidebarItems.forEach(function (item) {
+      const submenu = item.querySelector('.sub-menu');
+      const arrowIcon = item.querySelector('.arrow-icon');
+
+      item.addEventListener('click', function () {
+        item.classList.toggle('open');
+        submenu.style.display = item.classList.contains('open') ? 'block' : 'none';
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      const sidebar = document.querySelector('.sidebar');
+
+      if (!event.target.closest('.sidebar-li')) {
+        sidebarItems.forEach(function (item) {
+          item.classList.remove('open');
+          item.querySelector('.sub-menu').style.display = 'none';
+        });
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var messageBlock = document.getElementById('messageBlock');
+
+    if (messageBlock) {
+      setTimeout(function () {
+        messageBlock.classList.add('slide-out');
+        setTimeout(function () {
+          messageBlock.remove();
+        }, 500);
+      }, 2000);
+    }
+  });
+  
+  document.addEventListener("DOMContentLoaded", function() {
+    var url = window.location.href;
+
+    var sidebarLinks = document.querySelectorAll(".sidebar-link");
+    sidebarLinks.forEach(function(link) {
+        link.parentNode.classList.remove("active");
+    });
+
+    sidebarLinks.forEach(function(link) {
+        var href = link.getAttribute("href");
+        if (url.includes(href)) {
+
+            link.parentNode.classList.add("active");
+            
+            sidebarLinks.forEach(function(otherLink) {
+                if (otherLink !== link) {
+                    otherLink.parentNode.classList.remove("active");
+                }
+            });
+        }
+    });
+  });
+</script>
+
+
+
+
+
+
+
+

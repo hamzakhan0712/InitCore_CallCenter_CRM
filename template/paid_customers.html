@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Customers
+{% endblock %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/paid_customer.css' %}">
+
+<div class="filter-section">
+    <form method="GET" action="#">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search" placeholder="Search" value="{{ request.GET.search }}">
+                <div class="help-text">Search by Name & Number</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ request.GET.start_date }}">
+                <div class="help-text">Start date to filter</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ request.GET.end_date }}">
+                <div class="help-text">End date to filter</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="payment_method">
+                    <option value="">Select Payment Method</option>
+                    {% for choice in payment_methods_choices %}
+                        <option value="{{ choice.id }}" {% if request.GET.payment_method == choice.id %}selected{% endif %}>{{ choice.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Filter Payment Method</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="payment_status">
+                    <option value="">Select Payment Status</option>
+                    {% for status in payment_status_choices %}
+                        <option value="{{ status.0 }}" {% if request.GET.payment_status == status.0 %}selected{% endif %}>{{ status.1 }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Filter by Payment Status</div>
+            </div>
+            {% if not request.user.profile.role == 'Agent' %}
+                <div class="form-group">
+                    <select class="form-control" name="team_leader">
+                        <option value="">Select Team Leader Name</option>
+                        {% for leader in team_leaders %}
+                            <option value="{{ leader.id }}" {% if request.GET.team_leader == leader.id %}selected{% endif %}>{{ leader.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Filter by Team Leader</div>
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <select class="form-control" name="sort">
+                    <option value="payment_date" {% if request.GET.sort == 'payment_date' %}selected{% endif %}>Payment Date</option>
+                    <option value="full_name" {% if request.GET.sort == 'full_name' %}selected{% endif %}>Full Name</option>
+                    <option value="contact_number" {% if request.GET.sort == 'contact_number' %}selected{% endif %}>Contact Number</option>
+                </select>
+                <div class="help-text">Sort Customers by</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Apply</button>
+        </div>
+    </form>
+    <div class="bottom-filter">
+        {% if request.user.is_superuser %}
+        <a id="verify-customers-btn" class="btn btn-success mt-3" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+            Verify Customer
+        </a>
+        {% endif %}
+        <div>
+            <a href="{% url 'create_paid_customer' %}" class="btn btn-primary mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                Add New Customer
+            </a>
+            {% if request.user.is_superuser %}
+            <a href="{% url 'export_paid_customers' %}" class="btn btn-success mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+                Export Paid Customer
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="assigned-section">
+    <form method="POST" action="#">
+        {% csrf_token %}
+        <div class="button_section">
+            <div class="form-group" style="margin-top:5px;"></div>
+            <div class="form-group-controls">
+                <a href="#" id="btn-edit-selected" class="btn btn-primary" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                     Edit 
+                </a>
+                {% if request.user.is_superuser %}
+                    <a href="#" id="btn-delete-selected" class="btn btn-alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        Delete
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-wrapper"> 
+            <table class="paid_customer_lead">
+                <thead>
+                    <tr>
+                        <th style="padding:12px 5px;"><input type="checkbox" id="select-all"></th>
+                        <th>Verified</th>
+                        <th>Unique Customer ID</th>
+                        <th>Date</th>
+                        <th>Number</th>
+                        <th>Full Name</th>
+                        <th>Payment Date</th>
+                        <th>Package Name</th>
+                        <th>Package Ending Date</th>
+                        <th>Amount Paid</th>
+                        <th>Amount with GST</th>
+                        <th>Transaction ID</th>
+                        <th>Payment Status</th>
+                        <th>Payment Method</th>
+                        <th>Agent Name</th>
+                        <th>TL Name</th>
+                        <th>Remark</th>
+                        <th>Attachment</th>
+                        {% if request.user.is_superuser %}
+                            <th>Invoice</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in customer_invoices %}
+                    <tr>
+                        {% if not request.user.is_superuser and item.customer.verified %}
+                        <td></td>
+                        {% else %}
+                        <td><input type="checkbox" class="select-customer" data-id="{{ item.customer.id }}" data-name="{{ item.customer.lead.full_name }}"></td>
+                        {% endif %}
+                    
+                        <td class="{% if item.customer.verified %}status-completed{% else %}status-failed{% endif %}">
+                            {% if item.customer.verified %}
+                                Verified
+                            {% else %}
+                                Not Verified
+                            {% endif %}
+
+                        </td>
+                        <td>{{ item.customer.customer_id }}</td>
+                        <td>{{ item.customer.date }}</td>
+                        <td>{{ item.customer.contact_number }}</td>
+                        <td>{{ item.customer.lead.full_name }}</td>
+                        <td>{{ item.customer.payment_date }}</td>
+                        <td>{{ item.customer.package.name }}</td>
+                        <td>{{ item.customer.package_end_date }}</td>
+                        <td>₹ {{ item.customer.amount_paid|floatformat:0|intcomma }}/-</td>
+                        <td>₹ {{ item.customer.amount_with_gst|floatformat:0|intcomma }}/-</td>
+                        <td>{{ item.customer.transaction_id }}</td>
+                        <td class="{% if item.customer.payment_status == 'pending' %}status-pending{% elif item.customer.payment_status == 'completed' %}status-completed{% elif item.customer.payment_status == 'failed' %}status-failed{% endif %}">
+                            {{ item.customer.payment_status }}
+                        </td>
+                        <td>{{ item.customer.payment_method }}</td>
+                        <td>{{ item.customer.lead.assigned_to.user.get_full_name }}</td>
+                        <td>{{ item.customer.lead.assigned_to_team.leader.user.get_full_name }}</td>
+                        <td>{{ item.customer.remark }}</td>
+                        <td class="download-td">
+                            {% if item.customer.attachment %}
+                                <a href="{{ item.customer.attachment.url }}" download >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                    Download
+                                </a>
+                            {% else %}
+                                No Attachment
+                            {% endif %}
+                        </td>
+                        {% if request.user.is_superuser %}
+                            <td class="download-td">
+                                {% if item.customer.verified %}
+                                    {% if item.invoice_pdf_url %}
+                                        <a class="download-btn" href="{{ item.invoice_pdf_url }}" download>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-receipt-indian-rupee"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8"/><path d="M12 17.5 8 15h1a4 4 0 0 0 0-8"/><path d="M8 11h8"/></svg>
+                                            Invoice
+                                        </a>   
+                                    {% else %}
+                                        <span>No Invoice Available</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="status-failed">Yet Not Verified!</span> 
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="20">No Customers Details found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    
+    <div class="pagination">
+        <span class="step-links">
+            {% if customer_invoices.has_previous %}
+                <a href="?page=1&search={{ search_query }}&disposition={{ disposition }}&sub_disposition={{ sub_disposition }}&start_date={{ start_date }}&end_date={{ end_date }}&sort={{ sort_by }}">&laquo; first</a>
+                <a href="?page={{ customer_invoices.previous_page_number }}&search={{ search_query }}&disposition={{ disposition }}&sub_disposition={{ sub_disposition }}&start_date={{ start_date }}&end_date={{ end_date }}&sort={{ sort_by }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ customer_invoices.number }} of {{ customer_invoices.paginator.num_pages }}.
+            </span>
+    
+            {% if customer_invoices.has_next %}
+                <a href="?page={{ customer_invoices.next_page_number }}&search={{ search_query }}&disposition={{ disposition }}&sub_disposition={{ sub_disposition }}&start_date={{ start_date }}&end_date={{ end_date }}&sort={{ sort_by }}">next</a>
+                <a href="?page={{ customer_invoices.paginator.num_pages }}&search={{ search_query }}&disposition={{ disposition }}&sub_disposition={{ sub_disposition }}&start_date={{ start_date }}&end_date={{ end_date }}&sort={{ sort_by }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    
+</div>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.select-customer');
+        const editBtn = document.getElementById('btn-edit-selected');
+        const deleteBtn = document.getElementById('btn-delete-selected');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (document.querySelectorAll('.select-customer:checked').length > 0) {
+                    editBtn.classList.add('checked');
+                    deleteBtn.classList.add('checked');
+                } else {
+                    editBtn.classList.remove('checked');
+                    deleteBtn.classList.remove('checked');
+                }
+            });
+        });
+
+
+
+
+    document.getElementById('select-all').addEventListener('change', function () {
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        if (this.checked) {
+            editBtn.classList.add('checked');
+            deleteBtn.classList.add('checked');
+        } else {
+            editBtn.classList.remove('checked');
+            deleteBtn.classList.remove('checked');
+        }
+    });
+
+    editBtn.addEventListener('click', function () {
+        var selected = document.querySelectorAll('.select-customer:checked');
+        if (selected.length === 1) {
+            var customerId = selected[0].dataset.id;
+            window.location.href = `/paid-customers/edit/${customerId}/`;
+        } else {
+            alert('Please select exactly one customer to edit.');
+        }
+    });
+
+        deleteBtn.addEventListener('click', function () {
+            var selected = document.querySelectorAll('.select-customer:checked');
+            if (selected.length === 1) {
+                var customerId = selected[0].dataset.id;
+                window.location.href = `/paid-customers/delete/${customerId}/`;
+            } else {
+                alert('Please select exactly one customer to delete.');
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('#verify-customers-btn').click(function(e) {
+            e.preventDefault();
+            var selectedCustomerIds = [];
+            $('.select-customer:checked').each(function() {
+                selectedCustomerIds.push($(this).data('id'));
+            });
+            if (selectedCustomerIds.length > 0) {
+
+                var url = '/verify-customer/?customer_id=' + selectedCustomerIds[0]; 
+                window.location.href = url;
+            } else {
+                alert('Please select a customer to verify.');
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}

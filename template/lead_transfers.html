@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Lead Transfers
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_transfer.css' %}">
+
+
+<div class="filter-section">
+    <form method="GET" action="#">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search" placeholder="Search" value="{{ request.GET.contact_number }}">
+                <div class="help-text">Search by Number</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ request.GET.start_date }}">
+                <div class="help-text">Start date to filter</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ request.GET.end_date }}">
+                <div class="help-text">End date to filter</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="sub_disposition">
+                    <option value="">Select Sub Disposition</option>
+                    {% for sub in sub_disposition_choices %}
+                        <option value="{{ sub.name }}" {% if sub.name == request.GET.sub_disposition %}selected{% endif %}>{{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Filter by Sub Disposition</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="sort">
+                    <option value="id" {% if request.GET.sort == 'id' %}selected{% endif %}>ID</option>
+                    <option value="transfer_date" {% if request.GET.sort == 'transfer_date' %}selected{% endif %}>Transfer Date</option>
+                    <option value="lead__full_name" {% if request.GET.sort == 'lead__full_name' %}selected{% endif %}>Lead Name</option>
+                    <option value="lead__contact_number" {% if request.GET.sort == 'lead__contact_number' %}selected{% endif %}>Contact Number</option>
+                </select>
+                <div class="help-text">Sort Lead Transfers by</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Apply</button>
+        </div>
+    </form>
+    {% if request.user.is_superuser %}
+        <button onclick="openExportModal()" class="btn btn-primary export-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+            Export Records
+        </button>   
+    {% endif %}
+</div>
+
+
+<div class="assigned-section">
+
+    <div class="button_section">
+
+        {% if not request.user.profile.role == 'Agent' %}
+        <button class="tablink active" onclick="openTab(event, 'teamleader')">Teams Transfers</button>
+        {% endif %}
+        <button class="tablink active" onclick="openTab(event, 'agent')">Agent Transfers</button>
+
+    </div>
+    
+    <div id="teamleader" class="tabcontent" style="display: block;">
+        <div class="table-wrapper"> 
+            <table class="lead_transfer_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Contact Number</th>
+                        <th>Name</th>
+                        <th>Transfer Date + Time</th>
+                        <th>From Team Leader</th>
+                        <th>To Team Leader</th>
+                        <th>Transfer Remark</th>
+                        <th>Disposition(Sub-Disposition)</th>
+                        <th>Lead Remark</th>
+                        <th>History (Follow up)</th>
+                        {% if user.is_superuser %}
+                            <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transfer in team_leader_transfers %}
+                    <tr>
+                        <td>{{ transfer.id }}</td>
+                        <td>{{ transfer.lead.contact_number }}</td>
+                        <td>{{ transfer.lead.full_name }}</td>
+                        <td>{{ transfer.transfer_date }} {{ transfer.transfer_time }}</td>
+                        <td>{{ transfer.from_user.user.get_full_name }}</td>
+                        <td>{{ transfer.to_user.user.get_full_name }}</td>
+                        <td>
+                            {% if transfer.transfer_remark %}
+                                {{ transfer.transfer_remark }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td>
+
+                        <td class="dispose-td">
+                            <p> {{ transfer.lead.disposition }} </p>
+                            <p>( {{ transfer.lead.sub_disposition.name }} )</p>
+                        </td>
+                        <td>
+                            {% if transfer.lead.remark %}
+                                {{ transfer.lead.remark }}
+                            {% else %}
+                                None
+                            {% endif %}
+                            
+                        </td>
+                        <td>
+                            <a href="{% url 'lead_history' transfer.lead.id %}" class="btn btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                                History
+                            </a>
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'delete_lead_transfer' transfer.id %}" class="btn btn-alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                Delete
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if team_leader_transfers.has_previous %}
+                    <a href="?page=1&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">&laquo; first</a>
+                    <a href="?page={{ team_leader_transfers.previous_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ team_leader_transfers.number }} of {{ team_leader_transfers.paginator.num_pages }}.
+                </span>
+        
+                {% if team_leader_transfers.has_next %}
+                    <a href="?page={{ team_leader_transfers.next_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">next</a>
+                    <a href="?page={{ team_leader_transfers.paginator.num_pages }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div id="agent" class="tabcontent">
+        <div class="table-wrapper"> 
+            <table class="lead_transfer_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Contact Number</th>
+                        <th>Name</th>
+                        <th>Transfer Date + Time</th>
+                        <th>From Agent</th>
+                        <th>To Agent</th>
+                        <th>Transfer Remark</th>
+                        <th>Disposition(Sub-Disposition)</th>
+                        <th>Lead Remark</th>
+                        <th>History (Follow up)</th>
+                        {% if user.is_superuser %}
+                            <th>Actions</th>
+                        {% else %}
+                            <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transfer in agent_transfers %}
+                    <tr>
+                        <td>{{ transfer.id }}</td>
+                        <td>{{ transfer.lead.contact_number }}</td>
+                        <td>{{ transfer.lead.full_name }}</td>
+                        <td>{{ transfer.transfer_date }} {{ transfer.transfer_time }}</td>
+                        <td>{{ transfer.from_user.user.get_full_name }}</td>
+                        <td>{{ transfer.to_user.user.get_full_name }}</td>
+                        <td>{{ transfer.transfer_remark }}</td>
+                        <td class="dispose-td">
+                            <p> {{ transfer.lead.disposition }} </p>
+                            <p>( {{ transfer.lead.sub_disposition.name }} )</p>
+                        </td>
+                        <td>{{ transfer.lead.remark }}</td>
+                        <td>
+                            <a href="{% url 'lead_history' transfer.lead.id %}" class="btn btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                                History
+                            </a>
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'delete_lead_transfer' transfer.id %}" class="btn btn-alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                Delete
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if agent_transfers.has_previous %}
+                    <a href="?page=1&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">&laquo; first</a>
+                    <a href="?page={{ agent_transfers.previous_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ agent_transfers.number }} of {{ agent_transfers.paginator.num_pages }}.
+                </span>
+        
+                {% if agent_transfers.has_next %}
+                    <a href="?page={{ agent_transfers.next_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">next</a>
+                    <a href="?page={{ agent_transfers.paginator.num_pages }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+       
+</div>
+
+<div id="exportModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeExportModal()">&times;</span>
+        <form method="GET" action="{% url 'download_excel_report' %}">
+            <h3>Export Lead Transfer Records</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ request.GET.start_date }}">
+                    <div class="help-text">Start date to filter</div>
+                </div>
+                <div class="form-group">
+                    <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ request.GET.end_date }}">
+                    <div class="help-text">End date to filter</div>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="team">
+                        <option value="">Select Team</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if team.id == request.GET.team %}selected{% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Filter by Team</div>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" name="agent">
+                        <option value="">Select Agent</option>
+                        {% for agent in agents %}
+                            <option value="{{ agent.id }}" {% if agent.id == request.GET.agent %}selected{% endif %}>{{ agent.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Filter by Agent</div>
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Download Excel Report</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablink");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector(".tablink.active").click();
+    });
+    var modal = document.getElementById('exportModal');
+    var btn = document.getElementById("exportButton");
+    var span = document.getElementsByClassName("close")[0];
+    function openExportModal() {
+        modal.style.display = "block";
+    }
+    function closeExportModal() {
+        modal.style.display = "none";
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+</script>
+
+{% endblock %}
+

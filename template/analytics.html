@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %} - Analytics
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/analytics.css' %}">
+
+<div class="heading-bar">
+    <div class="heading-bar-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-3"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+    </div>
+    <div class="heading-bar-text">
+        <span class="primary-text">Analytics Dashboard</span>
+        <span class="secondary-text">Access detailed analytics on user activities and business performance.</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="table-wrapper">
+        <h2>Overall Analysis</h2>
+        <table class="analytics_table">
+            <thead>
+                <tr>
+                    <td>Total Revenue</td>
+                    <td>Attendance Rate</td>
+                    <td>Total Invoices Generated</td>
+                    <td>Total Paid Customers</td>
+                    <td>Total Leads</td>
+                    <td>Total Complaints</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>₹ {{ total_revenue|floatformat:0|intcomma }}/-</td>
+                    <td>{{ attendance_rate|floatformat:"2" }}%</td>
+                    <td>{{ total_invoice_generated }}</td>
+                    <td>{{ total_paid_customers }}</td>
+                    <td>{{ total_leads }}</td>
+                    <td>{{ total_complaints }}</td>
+                </tr>                    
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="overall-chart">
+            <h2>Metrics Chart</h2>
+            <canvas id="metricsChart"></canvas>
+        </div>
+        <div class="pie-chart">
+            <h2>Attendance Pie Chart</h2>
+            <canvas id="attendancePieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var objects = [
+            'Total Invoices Generated',
+            'Total Paid Customers',
+            'Total Leads',
+            'Total Complaints',
+        ];
+        var totals = [
+            {{ total_invoice_generated }},
+            {{ total_paid_customers }},
+            {{ total_leads }},
+            {{ total_complaints }},
+        ];
+        var ctx = document.getElementById('metricsChart').getContext('2d');
+        var metricsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: objects,
+                datasets: [{
+                    label: 'Metrics',
+                    data: totals,
+                    backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)', 
+                    'rgba(255, 159, 64, 0.2)',   
+                    'rgba(153, 102, 255, 0.2)', 
+                    'rgba(255, 99, 132, 0.2)'  
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',   
+                        'rgba(255, 159, 64, 1)',    
+                        'rgba(153, 102, 255, 1)', 
+                        'rgba(255, 99, 132, 1)'     
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var ctxAttendance = document.getElementById('attendancePieChart').getContext('2d');
+        var attendancePieChart = new Chart(ctxAttendance, {
+            type: 'pie',
+            data: {
+                labels: ['Present', 'Absent', 'Half day'],
+                datasets: [{
+                    label: 'Attendance Status',
+                    data: [{{ total_present }}, {{ total_absent }}, {{ total_half_day }}],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',  
+                        'rgba(255, 99, 132, 0.2)',   
+                        'rgba(255, 206, 86, 0.2)'  
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',     
+                        'rgba(255, 99, 132, 1)',    
+                        'rgba(255, 206, 86, 1)'    
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

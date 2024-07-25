@@ -1,0 +1,606 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--heading-text-color);
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  z-index: 999;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  gap: .5rem;
+}
+
+#menu-toggle > svg{
+  font-size: 22px;
+  color: var(--hover-color);
+  font-weight: bold;
+  padding: 4px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+#menu-toggle > svg:hover{
+  color: var(--background-color);
+}
+
+.navbar-brand {
+  width: min-content;
+  height: 2.8rem;
+  transition: var(--transition);
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.nav-right {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+  align-items: center;
+  gap: .1rem;
+  margin-right: 1rem;
+}
+
+.bottom-right {
+  background-color: var(--button-color);
+  position: absolute;
+  bottom: -10rem;
+  right: 1.5rem;
+  padding: 5px 8px;
+  border-radius: 5px;
+}
+
+#breakStatusText{
+  color: var(--background-color);
+  width: max-content;
+  text-align: center;
+  
+}
+
+.bottom-right button{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 8px;
+  }
+
+  .bottom-right button:hover{
+    background-color: var(--button-hover-color);
+  }
+  
+  .bottom-right button svg{
+    fill: var(--background-color);
+    color: var(--background-color);
+  }
+
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 5px;
+    position: relative;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+
+.username{
+  color: white;
+  font-size: 0.875rem;
+  margin-right: 10px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  color: var(--background-color);
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: var(--transition);
+  padding: 5px;
+}
+
+.dropbtn:hover,
+.dropbtn:focus {
+  background-color: var(--secondary-text);
+  color: var(--background-color);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px); /* Position dropdown below button */
+  right: 0;
+  background-color: var(--background-color);
+  min-width: 150px;
+  box-shadow: var(--box-shadow);
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 3px;
+}
+
+.arrow-up {
+  display: none;
+  position: absolute;
+  top: 2.295rem; /* Adjust position */
+  right: 10px; /* Adjust position */
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--background-color);
+  z-index: 9999;
+}
+
+.dropdown-content a,
+.dropdown-logout-btn {
+  color: var(--secondary-text);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  padding: 8px 16px;
+  text-decoration: none;
+  margin: 2px auto;
+  display: flex;
+  gap: 5px;
+  width: 75%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dropdown-content a:hover,
+.dropdown-logout-btn:hover {
+  background-color: var(--hover-color);
+  color: var(--heading-text-color);
+  border-color: var(--border-color);
+}
+
+.dropdown-content a:hover svg{
+  color: var(--heading-text-color);
+}
+
+.dropdown-content a svg{
+  display: flex;
+  align-items: center;
+  color: var(--secondary-text);
+}
+
+.dropdown-logout-btn {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--error-color);
+  width: 100%;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.dropdown-logout-btn:hover {
+  color: var(--background-color);
+  background-color: rgba(244, 67, 54);
+}
+
+.dropdown-logout-btn svg {
+  color: var(--error-color);
+}
+
+.dropdown-logout-btn:hover svg {
+  color: var(--background-color);
+}
+
+.show {
+  display: block;
+}
+
+
+
+.sidebar {
+  width: 3.5rem;
+  height: 100%;
+  border-right: 2px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  transition: all 0.5s ease-in-out;
+  margin-top: 4.5rem;
+  background-color: var(--background-color);
+}
+
+.sidebar.show {
+  width: 220px;
+}
+
+.sidebar-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: var(--transition);
+  margin: 1rem 5px;
+}
+
+.sidebar-li:hover{
+  background-color: var(--hover-color);
+  border: 1px solid var(--border-color);
+  color: var(--heading-text-color);
+}
+
+.sidebar-li:hover .sidebar-link span,svg{
+  color: var(--heading-text-color);
+}
+
+.sidebar-li:hover .sidebar-link svg{
+  color: var(--heading-text-color);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  color: var(--heading-text-color);
+  text-decoration: none;
+  width: 100%;
+  margin: 5px 8px;
+}
+
+.sidebar-link svg {
+  color: var(--secondary-text);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: var(--transition);
+}
+
+
+.sidebar .sidebar-link span {
+  display: none;
+  color: var(--secondary-text);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sidebar.show .sidebar-link span {
+  display: inline;
+  font-size: 0.875rem;
+}
+
+.sidebar.show .sidebar-link svg{
+  margin-right: 5px;
+}
+
+/* Tooltip Styling */
+.sidebar:not(.show) .sidebar-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  white-space: nowrap;
+  background-color: var(--heading-text-color);
+  color: var(--background-color);
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.25rem;
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+  font-size: 0.775rem;
+  z-index: 10;
+}
+
+.sidebar:not(.show) .sidebar-link:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tooltip Arrow */
+.sidebar:not(.show) .sidebar-link::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-left: -5px; /* Adjust this value to move the arrow closer/further from the tooltip box */
+  transform: translateY(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent var(--heading-text-color) transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.sidebar:not(.show) .sidebar-link:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-link.active {
+  color: var(--heading-text-color); /* Change link text color */
+  font-weight: bold; /* Optional: make text bold */
+}
+
+.sidebar-li.active {
+  background-color: var(--hover-color); /* Change background color for active list item */
+  border-color: var(--border-color);
+}
+
+.sidebar-li.active .sidebar-link svg {
+  stroke: var(--heading-text-color); /* Change SVG stroke color */
+}
+
+.sidebar-li.active .sidebar-link span{
+  color: var(--heading-text-color);
+}
+
+
+ /* Message Block Styles */
+ .message-block {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  position: fixed;
+  top: 0px; /* Adjust the value according to the height of your navbar */
+  left: 50%;
+  transform: translateX(-50%);
+  width:auto; /* Adjust the width as per your requirement */
+  padding: 5px;
+  border-radius: 4px;
+  z-index: 9999;
+  background-color: var(--heading-text-color);
+}
+
+/* Add the slide-out class for animation */
+.message-block.slide-out {
+  transform: translateX(-50%) translateY(-100%);
+  opacity: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.messages{
+  margin: 0;
+  padding: 0;
+}
+
+.messages li{
+ list-style: none;
+ font-size: 14px;
+ margin: 10px 0;
+}
+
+.success {
+  color: var(--background-color); /* Text color for success message */
+  background-color: transparent; /* Background color for success message */
+  border: 1px solid var(--success-color); /* Border color for success message */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.error {
+  color: var(--background-color); /* Text color for error message */
+  background-color: transparent; /* Background color for error message */
+  border: 1px solid var(--error-color); /* Border color for error message */
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+
+
+
+
+
+
+
+.break-container {
+  position: absolute;
+  top: 105%; /* Position below the navbar */
+  right: 20px; /* Adjust as needed for rightmost corner */
+  border-radius: 5px;
+}
+
+.break-container button{
+  outline: none;
+  border: 1px solid var(--button-color);
+  background-color: var(--button-color);
+  border-radius: 4px;
+  color: var(--background-color);
+  padding: 5px 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.break-container button svg{
+  color: var(--button-color);
+}
+
+/* Styles for overlay */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Styles for modal */
+.nav-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.break-start-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: left;
+  font-size: 24px;
+  background-color: var(--background-color); /* Replace with your background color */
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.break-start-container h2{
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--heading-text-color);
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--button-color);
+  margin-bottom: 10px;
+}
+
+.break-start-container select,
+.break-start-container button {
+  margin: 10px;
+  padding: 5px 10px;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  border: 2px solid var(--border-color);
+
+}
+
+.break-start-container button{
+  background-color: var(--button-color);
+  color: var(--background-color);
+  cursor: pointer;
+  padding: 8px 15px;
+  width: max-content;
+}
+
+.break-start-container select{
+  width: 250px;
+  outline: none;
+}
+
+
+.break-start-container select:focus{
+  border: 2px solid var(--button-color);
+}
+
+/* Styles for break timer */
+.break-timer {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+  font-size: 24px;
+  z-index: 1000;
+}
+
+#timerDisplay{
+  font-size: 24rem;
+  margin: 0;
+  cursor: default;
+}
+
+
+.break-timer button {
+  background-color: var(--error-color);
+  color: var(--background-color);
+  cursor: pointer;
+  padding: 8px 15px;
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  width: 250px;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.break-timer button:hover{
+  background-color: var(--background-color);
+  color: var(--error-color)
+
+}
+
+.nav-close-modal {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--error-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Lead History
+{% endblock %}
+
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_history.css' %}">
+
+
+<div class="table-wrapper">
+    <h1>History for Lead {{ lead.id }}</h1>
+    <table class="lead_history_table">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Performed By</th>
+                <th>Timestamp</th>
+                <th>Details</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in history %}
+                <tr>
+                    <td>{{ record.action }}</td>
+                    <td>{{ record.performed_by }}</td>
+                    <td>{{ record.timestamp }}</td>
+                    <td>{{ record.details }}</td>
+                    <td>
+                        
+                        {{ record.notes }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

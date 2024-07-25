@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>{% if company %}{{ company.company_name }}{% else %}My Application{% endif %} - Login</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+
+</head>
+
+<body>
+  <div class="login-container">
+      <form method="post" id="myform">
+          {% csrf_token %}
+          <img class="signin-logo" src="{% static 'img/logo.png' %}" alt="">
+          <p id="signin">Sign-In</p>
+          {{ form.as_p }}
+          <button type="submit" class="input-sign-submit">Login</button>
+      </form>
+  </div>
+</body>
+
+<script>
+  
+  document.addEventListener('DOMContentLoaded', function () {
+    const passwordFields = document.querySelectorAll('[data-toggle="password"]');
+    passwordFields.forEach(field => {
+        const eyeIcon = document.createElement('span');
+        eyeIcon.classList.add('eye-icon');
+        eyeIcon.addEventListener('click', function () {
+            const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+            field.setAttribute('type', type);
+            this.classList.toggle('active');
+        });
+        
+        field.parentNode.insertBefore(eyeIcon, field.nextSibling);
+    });
+  });
+
+
+</script>
+
+</html>
+

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Create Lead
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+<div class="form-container">
+
+  <div class="heading-bar">
+    <div class="heading-bar-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    </div>
+    <div class="heading-bar-text">
+      <span class="primary-text">New Lead Entry</span>
+      <span class="secondary-text">Enter details for a new lead in the system.</span>
+    </div>
+  </div>  
+
+  <form id="create-form" method="POST" novalidate>
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        {{ form.date.label_tag }}
+        {{ form.date }}
+        {% for error in form.date.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+          <small class="form-text text-muted">Please select the date for this lead entry.</small>
+
+      </div>
+
+      <div class="form-group col-md-6">
+        {{ form.full_name.label_tag }}
+        {{ form.full_name }}
+        {% for error in form.full_name.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+
+          <small class="form-text text-muted">Enter the full name of the lead.</small>
+      </div>
+
+      <div class="form-group col-md-6">
+        {{ form.contact_number.label_tag }}
+        {{ form.contact_number }}
+        {% for error in form.contact_number.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+          <small class="form-text text-muted">Provide a valid contact number for the lead.</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        {{ form.state.label_tag }}
+        {{ form.state }}
+        {% for error in form.state.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+          <small class="form-text text-muted">Select the state where the lead is located.</small>
+      </div>
+
+      <div class="form-group col-md-6">
+        {{ form.capital.label_tag }}
+        {{ form.capital }}
+        {% for error in form.capital.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+          <small class="form-text text-muted">Enter the capital Amount of the Customer.</small>
+
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        {{ form.disposition.label_tag }}
+        {{ form.disposition }}
+        {% for error in form.disposition.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+          <small class="form-text text-muted">Select the current disposition of the lead.</small>
+
+      </div>
+      <div class="form-group col-md-6">
+        {{ form.sub_disposition.label_tag }}
+        {{ form.sub_disposition }}
+        {% for error in form.sub_disposition.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+        <small class="form-text text-muted">Choose a specific sub-disposition related to the lead's status.</small>
+
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ form.remark.label_tag }}
+      {{ form.remark }}
+      {% for error in form.remark.errors %}
+        <small class="form-text text-danger">{{ error }}</small>
+      {% endfor %}
+      <small class="form-text text-muted">Add any additional remarks or comments about the lead.</small>
+
+    </div>
+
+    <div class="bottom-buttons">
+      <button type="submit" class="btn btn-primary">Create Lead</button>
+      <a href="{% url 'lead_list' %}" class="cancel-btn">Cancel</a>
+    </div>
+
+  </form>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,530 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Leads
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_list.css' %}">
+
+<div class="filter-section"> 
+    <form method="GET" action="{% url 'lead_list' %}">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search" placeholder="Search" value="{{ request.GET.search }}">
+                <div class="help-text">Search for specific leads</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ request.GET.start_date }}">
+                <div class="help-text">Start date to filter</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ request.GET.end_date }}">
+                <div class="help-text">End date to filter</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="disposition">
+                    <option value="">Select Disposition</option>
+                    {% for choice in lead_disposition_choices %}
+                        <option value="{{ choice.0 }}" {% if request.GET.disposition == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Filter by disposition</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="sub_disposition">
+                    <option value="">Select Sub Dispositions</option>
+                    {% for sub in sub_disposition_choices %}
+                        <option value="{{ sub.name }}" {% if sub.name == request.GET.sub_disposition %}selected{% endif %}>{{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Filter by sub-disposition</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="sort">
+                    <option value="id" {% if request.GET.sort == 'id' %}selected{% endif %}>ID</option>
+                    <option value="date" {% if request.GET.sort == 'date' %}selected{% endif %}>Date</option>
+                    <option value="contact_number" {% if request.GET.sort == 'contact_number' %}selected{% endif %}>Contact Number</option>
+                    <option value="full_name" {% if request.GET.sort == 'full_name' %}selected{% endif %}>Full Name</option>
+                </select>
+                <div class="help-text">Sort leads by</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Apply</button>
+        </div>
+    </form>
+    <div class="bottom-filter">
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="import_lead">
+                {{ form.as_p }}
+                <div class="help-text">Upload .csv File to Import leads</div>
+            </div>
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-down"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+            </button>
+        </form>
+
+        <div>
+            <a href="{% url 'create_lead' %}" class="btn btn-primary mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                Add New Lead
+            </a>
+            {% if request.user.is_superuser%}
+            <a href="{% url 'export_leads' %}" class="btn btn-success mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+                Export Leads
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="assigned-section">
+    <form method="POST" action="{% url 'assign_leads_to_team' %}">
+        {% csrf_token %}
+        <div class="assign_lead_section">
+            <div class="form-group">
+
+                {% if request.user.is_superuser %}
+                    <select class="form-control" id="team" name="team">
+                        <option value="" selected disabled>Assign Leads to Team</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control" id="agent" name="agent">
+                        <option value="" selected disabled>Assign Leads to Agents</option>
+                        {% for agent in agents %}
+                            <option value="{{ agent.id }}">{{ agent.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                
+                {% elif request.user.profile.role == 'Team Leader' %}
+                    <select class="form-control" id="team_member" name="team_member">
+                        <option value="" selected disabled>Assign Leads to Agents</option>
+                        {% for member in team_members %}
+                        <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control" id="other_team_leader" name="other_team_leader">
+                        <option value="" selected disabled>Transfer to Team</option>
+                        {% for team in other_teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <textarea class="form-control" id="transfer_note" name="transfer_note" rows="1" cols="100" placeholder="Enter transfer Remark *" style="resize: vertical; max-height: 150px;"></textarea>
+                
+                {% elif request.user.profile.role == 'Agent' %}
+                    <select class="form-control" id="other_agent" name="other_agent">
+                        <option value="" selected disabled>Transfer to Agent</option>
+                        {% if my_team_members %}
+                            {% for agent in my_team_members %}
+                                <option value="{{ agent.id }}">{{ agent.user.get_full_name }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                    <textarea class="form-control" id="transfer_note" name="transfer_note" rows="1" cols="100" placeholder="Enter transfer Remark *" style="resize: vertical; max-height: 150px;"></textarea>
+
+                {% endif %}
+               
+                <button type="submit" id="assign-btn" class="btn btn-tertiary">
+                    Proceed
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-forward"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
+                </button>
+            </div>
+            <div class="form-group-controls">
+                <a href="#" id="btn-edit-selected" class="btn btn-primary" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                     Edit 
+                </a>
+                {% if request.user.is_superuser %}
+                <a href="#" id="btn-delete-selected" class="btn btn-alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    Delete
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table style="width:100%" class="lead-table">
+                <thead>
+                    <tr>
+                        <th class="small-td"><input type="checkbox" id="select-all"></th>
+                        <th class="small-td">ID</th>
+                        <th class="small-td">Date</th>
+                        <th>Full Name</th>
+                        <th>Contact Number</th>
+                        <th>State</th>
+                        <th>Capital(Amount)</th>
+                        <th>Disposition</th>
+                        <th>Sub-Disposition</th>
+                        <th>Remark</th>
+                        <th>Reminder</th>
+                        <th>Assigned Agent</th>
+                        <th>Assigned Team</th>
+                        <th>Dispose</th>
+                        <th>History</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                        <tr>
+                            <td class="small-td">
+                                {% if request.user.profile.role == 'Agent' and lead.assigned_to == request.user.profile %}
+                                    <input type="checkbox" name="selected_leads" class="lead-checkbox" value="{{ lead.id }}">
+                                {% elif request.user.profile.role == 'Team Leader' and lead.assigned_to_team.leader == request.user.profile %}
+                                    <input type="checkbox" name="selected_leads" class="lead-checkbox" value="{{ lead.id }}">
+                                {% elif request.user.is_superuser %}
+                                    <input type="checkbox" name="selected_leads" class="lead-checkbox" value="{{ lead.id }}">
+                                {% endif %}
+                            </td>
+                            
+                            
+                            <td class="small-td">{{ lead.id }}</td>
+                            <td class="small-td">{{ lead.date }}</td>
+                            <td>{{ lead.full_name }}</td>
+                            <td>{{ lead.contact_number }}</td>
+                            <td>{{ lead.state }}</td>
+                            <td>₹ {{ lead.capital|floatformat:0|intcomma }}/-</td>
+                            <td>{{ lead.disposition }}</td>
+                            <td>{{ lead.sub_disposition.name }}</td>
+                            <td>
+                                {% if lead.remark %}
+                                    {{ lead.remark }}
+                                {% else %}
+                                    No Remark set
+                                {% endif %}
+                            </td>
+                            <td>
+                            {% if lead.reminder %}
+                                <div class="countdown" data-leadid="{{ lead.id }}" data-reminder-time="{{ lead.reminder|date:'Y-m-d H:i:s' }}">
+                                    <span class="timer"></span>
+                                </div>
+                            {% else %}
+                                No reminder set
+                            {% endif %}
+                            </td>
+                            <td>
+                                {% if lead.assigned_to %}
+                                    {{ lead.assigned_to.user.get_full_name}}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </td>
+                            <td>{{ lead.assigned_to_team }}</td>
+                            <td>
+                                <a href="#" class="btn btn-primary dispose-button" id="btn-dispose" data-leadid="{{ lead.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-forward"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
+                                    Dispose
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'lead_history' lead.id %}" class="btn btn-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                                    History
+                                </a>
+                            </td>    
+
+                        </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="15">No leads found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if leads.has_previous %}
+                    <a href="?page=1&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">&laquo; first</a>
+                    <a href="?page={{ leads.previous_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ leads.number }} of {{ leads.paginator.num_pages }}.
+                </span>
+        
+                {% if leads.has_next %}
+                    <a href="?page={{ leads.next_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">next</a>
+                    <a href="?page={{ leads.paginator.num_pages }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </form>
+</div>
+
+<div id="dispose-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Dispose Lead</h2>
+        <form id="dispose-form" method="post" action="{% url 'dispose_lead' %}">
+            {% csrf_token %}
+            <input type="hidden" id="lead-id" name="lead_id">
+            <div>
+                <select id="disposition-select" name="disposition" required>
+                    <option value="">Select Disposition</option>
+                    {% for choice in lead_disposition_choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="sub-disposition-container" style="display: none;">
+                <select id="sub-disposition-select" name="sub_disposition">
+                    <option value="">Select Sub Disposition</option>
+                    {% for sub in sub_disposition_choices %}
+                        <option value="{{ sub.name }}">{{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="dispose-form-group" id="reminder-section" style="display: none;">
+                <div class="reminder-input-group">
+                    <label for="reminder-days">Days:</label>
+                    <input type="number" id="reminder-days" name="reminder_days" placeholder="Days" min="0" value="0">
+                </div>
+                <div class="reminder-input-group">
+                    <label for="reminder-hours">Hours:</label>
+                    <input type="number" id="reminder-hours" name="reminder_hours" placeholder="Hours" min="0" max="23" value="0">
+                </div>
+                <div class="reminder-input-group">
+                    <label for="reminder-minutes">Minutes:</label>
+                    <input type="number" id="reminder-minutes" name="reminder_minutes" placeholder="Minutes" min="0" max="59" value="0">
+                </div>
+            </div>
+            <div>
+                <textarea id="remark" name="remark" placeholder="Remark" required></textarea>
+            </div>
+            <button type="submit" class="dispose-submit-button">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const disposeButtons = document.querySelectorAll('.dispose-button');
+        const modal = document.getElementById('dispose-modal');
+        const dispositionSelect = document.getElementById('disposition-select');
+        const subDispositionSelect = document.getElementById('sub-disposition-select');
+        const reminderSection = document.getElementById('reminder-section');
+        const subDispositionContainer = document.getElementById('sub-disposition-container');
+        const closeModalButton = document.querySelector('.close');
+    
+        disposeButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                modal.style.display = 'block';
+                // Populate lead ID in the form
+                const leadId = this.getAttribute('data-leadid');
+                document.getElementById('lead-id').value = leadId;
+                // Reset form fields
+                dispositionSelect.selectedIndex = 0;
+                subDispositionSelect.innerHTML = '<option value="">Select Sub Disposition</option>';
+                subDispositionContainer.style.display = 'none';
+                document.getElementById('remark').value = '';
+                document.getElementById('reminder-days').value = 0;
+                document.getElementById('reminder-hours').value = 0;
+                document.getElementById('reminder-minutes').value = 0;
+                // Hide reminder section initially
+                reminderSection.style.display = 'none';
+            });
+        });
+    
+        dispositionSelect.addEventListener('change', function () {
+            const selectedDisposition = this.value;
+            if (selectedDisposition === 'Connected') {
+                subDispositionSelect.innerHTML = '<option value="">Select Sub Disposition</option>';
+                {% for sub in sub_disposition_choices %}
+                    subDispositionSelect.innerHTML += '<option value="{{ sub.name }}">{{ sub.name }}</option>';
+                {% endfor %}
+                subDispositionContainer.style.display = 'block';
+            } else {
+                subDispositionContainer.style.display = 'none';
+                reminderSection.style.display = 'none';
+            }
+        });
+    
+        subDispositionSelect.addEventListener('change', function () {
+            const selectedSubDisposition = this.value;
+            if (selectedSubDisposition === 'Call Back With Presentation' || selectedSubDisposition === 'Call Back Without Presentation') {
+                reminderSection.style.display = 'flex';
+            } else {
+                reminderSection.style.display = 'none';
+            }
+        });
+    
+        // Close the modal when the user clicks on the close button (x)
+        closeModalButton.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
+    
+        // Close the modal when the user clicks outside the modal content
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    
+        // Submit the form
+        document.getElementById('dispose-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const leadId = document.getElementById('lead-id').value;
+            const disposition = dispositionSelect.value;
+            const subDisposition = subDispositionSelect.value;
+            const remark = document.getElementById('remark').value;
+            const reminderDays = document.getElementById('reminder-days').value;
+            const reminderHours = document.getElementById('reminder-hours').value;
+            const reminderMinutes = document.getElementById('reminder-minutes').value;
+    
+            fetch("{% url 'dispose_lead' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    lead_id: leadId,
+                    disposition: disposition,
+                    sub_disposition: subDisposition,
+                    remark: remark,
+                    reminder_days: reminderDays,
+                    reminder_hours: reminderHours,
+                    reminder_minutes: reminderMinutes,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal
+                    modal.style.display = 'none';
+                    // Optionally, refresh the page or update the table row to reflect changes
+                    location.reload();
+                } else {
+                    // Handle error case
+                    alert('An error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    });
+
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const countdownElements = document.querySelectorAll('.countdown');
+    
+        countdownElements.forEach(function(element) {
+            const reminderTime = new Date(element.getAttribute('data-reminder-time')).getTime();
+            const leadId = element.getAttribute('data-leadid');
+            const remark = element.closest('tr').querySelector('td:nth-child(9)').innerText;
+            const timerElement = element.querySelector('.timer');
+            const alertShownKey = `alertShown_${leadId}`;
+    
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = reminderTime - now;
+    
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+                if (distance > 0) {
+                    timerElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    clearInterval(timerInterval);
+                    if (!localStorage.getItem(alertShownKey)) {
+                        alert(`Reminder for Lead ID ${leadId}: ${remark}`);
+                        localStorage.setItem(alertShownKey, 'true'); // Set the flag in localStorage
+                    }
+                    timerElement.innerHTML = "No Reminder";
+                }
+            }
+    
+            const timerInterval = setInterval(updateCountdown, 1000);
+        });
+    });
+</script>
+
+<script>
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if cookie name matches the expected format
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    document.getElementById('select-all').onclick = function() {
+        var checkboxes = document.querySelectorAll('input[type="checkbox"][name="selected_leads"]');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.lead-checkbox');
+        const assignBtn = document.getElementById('assign-btn');
+    
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (document.querySelectorAll('.lead-checkbox:checked').length > 0) {
+                    assignBtn.classList.add('checked');
+                } else {
+                    assignBtn.classList.remove('checked');
+                }
+            });
+        });
+    
+        document.getElementById('select-all').addEventListener('change', function () {
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            if (this.checked) {
+                assignBtn.classList.add('checked');
+            } else {
+                assignBtn.classList.remove('checked');
+            }
+        });
+    });
+
+    document.getElementById('btn-edit-selected').addEventListener('click', function() {
+        var selected = document.querySelectorAll('.lead-checkbox:checked');
+        if (selected.length === 1) {
+            var leadId = selected[0].value;
+            window.location.href = `/leads/edit/${leadId}/`;
+        } else {
+            alert('Please select exactly one lead to edit.');
+        }
+    });
+
+    document.getElementById('btn-delete-selected').addEventListener('click', function() {
+        var selected = document.querySelectorAll('.lead-checkbox:checked');
+        if (selected.length === 1) {
+            var leadId = selected[0].value;
+            window.location.href = `/leads/delete/${leadId}/`;
+        } else {
+            alert('Please select exactly one lead to delete.');
+        }
+    });
+
+</script>
+
+{% endblock %}

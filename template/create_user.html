@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Create User
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+
+<div class="form-container">
+    
+    <div class="heading-bar">
+        <div class="heading-bar-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+        </div>
+        <div class="heading-bar-text">
+            <span class="primary-text">Create a User</span>
+            <span class="secondary-text">Add a new user to the system with specific roles and permissions.</span>
+        </div>
+       
+    </div>
+    <form id="create-form" method="POST">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.username.help_text %}
+                    <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.email.help_text %}
+                    <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.first_name.help_text %}
+                    <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.last_name.help_text %}
+                    <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.phone_number.label_tag }}
+                {{ form.phone_number }}
+                {% for error in form.phone_number.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.phone_number.help_text %}
+                    <small class="form-text text-muted">{{ form.phone_number.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.emergency_phone_number.label_tag }}
+                {{ form.emergency_phone_number }}
+                {% for error in form.emergency_phone_number.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                {% if form.emergency_phone_number.help_text %}
+                    <small class="form-text text-muted">{{ form.emergency_phone_number.help_text }}</small>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.role.label_tag }}
+                {{ form.role }}
+                {% for error in form.role.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the User's Role</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                {% for error in form.status.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the Current Status of the User</small>
+            </div>
+            <div class="form-group col-md-6" >
+                {{ form.date_of_joining.label_tag }}
+                {{ form.date_of_joining }}
+                {% for error in form.date_of_joining.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the User's Date of Joining</small>
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {% for error in form.address.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            {% if form.address.help_text %}
+                <small class="form-text text-muted">{{ form.address.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <h4>Set Password</h4>
+        <div class="form-group" style="display: none;">
+            {{ form.plain_password }}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+                {% if form.password1.help_text %}
+                    <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+                {% if form.password2.help_text %}
+                    <small class="form-text text-muted">{{ form.password2.help_text }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bottom-buttons">
+            <button type="submit" class="btn btn-primary">Create User</button>
+            <a href="{% url 'settings' %}" class="cancel-btn">Cancel</a>
+        </div>
+       
+    </form>
+    
+    <script>
+        function populatePlainPassword() {
+            var password1 = document.getElementById('id_password1').value;
+            document.getElementById('id_plain_password').value = password1;
+        }
+        document.getElementById('id_password1').addEventListener('input', populatePlainPassword);
+    </script>
+</div>
+{% endblock %}

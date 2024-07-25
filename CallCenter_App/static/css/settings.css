@@ -1,0 +1,107 @@
+.settings-heading{
+    margin: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    color: var(--heading-text-color);
+    font-size: 2.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    background-color: var(--hover-color);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.settings-heading svg{
+    color: var(--secondary-text);
+}
+
+
+.settings-heading span:last-of-type{
+    font-size: 1.5rem;
+}
+
+.settings-table {
+    width: 100%;
+    border-spacing: 0; 
+    background-color: var(--background-color);
+
+
+}
+
+.settings-table th,
+.settings-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-table th {
+    background-color: var(--hover-color);
+    color: var(--secondary-text);
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+.settings-table th:first-of-type{
+    font-size: 2rem;
+}
+
+.settings-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--border-color);
+}
+
+.settings-table tbody tr:hover {
+    background-color: var(--row-hover-color);
+}
+
+.settings-table tbody td {
+    font-size: 0.975rem;
+    color: var(--heading-text-color);
+    vertical-align: middle;
+}
+
+.settings-table tbody td:first-of-type {
+    width: 20px; /* Minimum width */
+    white-space: nowrap; /* Prevent column from expanding */
+    padding-right: 0;
+}
+
+.settings-table tbody td:last-of-type {
+    text-align: right;
+}
+
+.settings-table .text-cell {
+    display: flex;
+    flex-direction: column;
+    padding-left: 8px;
+}
+
+.settings-table .text-cell .primary-text {
+    color: var(--heading-text-color);
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.settings-table .text-cell .secondary-text {
+    color: var(--secondary-text);
+    font-size: 0.775rem;
+}
+
+.settings-table .text-cell a{
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+}
+
+.settings-table .svg-icon {
+    width: 24px; /* Bigger size for SVG */
+    height: 24px; /* Bigger size for SVG */
+    color: var(--secondary-text);
+}

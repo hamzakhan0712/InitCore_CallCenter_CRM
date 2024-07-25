@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Dashboard
+{% endblock %}
+
+  
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+
+<div class="top-container">
+    
+  <div class="top-left">
+    <div class="tab-container">
+        <div class="total_revenue tab" onclick="showChart(1)">
+          <span class="tab-head">Total Sales</span>
+          <span class="tab-data">₹ {{ amount_paid|floatformat:0|intcomma }}/-</span>
+        </div>
+        <div class="tab" onclick="showChart(2)">
+            <span class="tab-head">Paid Customers</span>
+            <span class="tab-data">{{ all_paid_customers.count }} Customers </span>
+        </div>
+        <div class="tab" onclick="showChart(3)">
+            <span class="tab-head">New Leads</span>
+            <span class="tab-data">{{ all_leads.count }} Leads</span>
+        </div>
+        <div class="tab" onclick="showChart(4)">
+            <span class="tab-head">Attendance Rate</span>
+            <span class="tab-data">{{ attendance_rate|floatformat:2 }}%</span>
+        </div>
+    </div>
+    <table class="dashboard-table">
+      <thead>
+          <tr>
+              <th>Sales Reports</th>
+              <th></th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td>Unique customer acquried today</td>
+              <td>{{ unique_customers_today }}</td>
+          </tr>
+          <tr>
+            <td>Today's Sale Amount</td>
+            <td>₹ {{ today_sales_amount|floatformat:0|intcomma }}/-</td>    
+          </tr>
+          <tr>
+            <td>Unique customer acquried this Month</td>
+            <td>{{ unique_customers_this_month }}</td>    
+          </tr>
+          <tr>
+            <td>This Month's Sales Amount</td>
+            <td>₹ {{ this_month_sales_amount|floatformat:0|intcomma }}/-</td>    
+          </tr>
+      </tbody>
+    </table> 
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+            <th>
+              {% if request.user.profile.role == 'Agent' %}
+                Agent
+              {% else %}
+                Team Leader
+              {% endif %}
+            </th>
+            <th>Total Sales Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for team_leader, total_sales in team_leader_sales.items %}
+        <tr>
+            <td>{{ team_leader }}</td>
+        
+            <td>₹ {{ total_sales|floatformat:0|intcomma }}/-</td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+      
+  </div>
+
+  <div class="top-right">
+
+    <div class="chart-container">
+      <div class="chart" id="chart1">
+          <p class="chart-label">Sales of Last Month:</p>
+          <canvas id="salesLineChart"></canvas>
+      </div>
+      <div class="chart" id="chart2">
+        <p class="chart-label">Customer Overall Look:</p>
+        <canvas id="paidCustomersChart"></canvas>
+    </div>
+      <div class="chart" id="chart3">
+          <p class="chart-label">Leads Overall Look:</p>
+          <canvas id="leadStatusChart"></canvas>
+      </div>
+      <div class="chart" id="chart4">
+          <p class="chart-label">Overall Attendance Look:</p>
+          <canvas id="attendanceChart"></canvas>
+      </div>
+    </div>
+  
+  
+
+    <table class="dashboard-table">
+      <thead>
+        <tr>
+          <th>
+            {% if request.user.profile.role == 'Agent' %}
+              Agent
+            {% else %}
+              Team Leader
+            {% endif %}
+          </th>
+          <th>Total Sales Amount (Last Month)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for team_leader, total_sales in team_leader_sales_last_month.items %}
+          <tr>
+            <td>{{ team_leader }}</td>
+            <td>₹ {{ total_sales|default_if_none:"N/A"|floatformat:0|intcomma }}/-</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No data available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table> 
+
+  </div>
+
+</div>
+
+
+<script>
+  function showChart(chartNumber) {
+    const charts = document.querySelectorAll(".chart");
+    charts.forEach((chart) => {
+      chart.style.display = "none";
+    });
+
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach((tab) => {
+      tab.classList.remove("active-tab");
+    });
+
+    const selectedChart = document.getElementById(`chart${chartNumber}`);
+    selectedChart.style.display = "block";
+
+    const selectedTab = document.querySelector(`.tab:nth-child(${chartNumber})`);
+    selectedTab.classList.add("active-tab");
+  }
+
+  showChart(1);
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const salesData = {{ sales_data|safe }};
+        const salesLabels = {{ sales_labels|safe }};
+
+        const ctx = document.getElementById('salesLineChart').getContext('2d');
+        const salesLineChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: salesLabels,
+            datasets: [{
+              label: 'Sales Amount',
+              data: salesData,
+              fill: false,
+              borderColor: 'rgb(75, 192, 192)',
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(tooltipItem) {
+                    return `Sales on ${tooltipItem.label}: ₹${tooltipItem.raw}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+    
+        var customersOverallCtx = document.getElementById('paidCustomersChart').getContext('2d');
+        var customersOverallChart = new Chart(customersOverallCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ paid_customers_overall_look.labels|safe }},
+                datasets: [{
+                    label: 'Number of Customers',
+                    data: {{ paid_customers_overall_look.data|safe }},
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var leadsOverallCtx = document.getElementById('leadStatusChart').getContext('2d');
+        var leadsOverallChart = new Chart(leadsOverallCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ all_leads_overall_look.labels|safe }},
+                datasets: [{
+                    label: 'Number of Leads',
+                    data: {{ all_leads_overall_look.data|safe }},
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var attendanceOverallCtx = document.getElementById('attendanceChart').getContext('2d');
+        var attendanceOverallChart = new Chart(attendanceOverallCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ attendance_overall_look.labels|safe }},
+                datasets: [{
+                    label: 'Attendance',
+                    data: {{ attendance_overall_look.data|safe }},
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+ 
+{% endblock %}

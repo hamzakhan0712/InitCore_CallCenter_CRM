@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Edit User
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+
+<div class="form-container">
+    
+    <div class="heading-bar">
+        <div class="heading-bar-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+        </div>
+        <div class="heading-bar-text">
+            <span class="primary-text">Edit User Details</span>
+            <span class="secondary-text">Modify the details and Password of this user.</span>
+        </div>
+    </div>
+
+    <form id="create-form" method="POST">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the username.</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the email address.</small>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the first name.</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the last name.</small>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.phone_number.label_tag }}
+                {{ form.phone_number }}
+                {% for error in form.phone_number.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the phone number.</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.emergency_phone_number.label_tag }}
+                {{ form.emergency_phone_number }}
+                {% for error in form.emergency_phone_number.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Enter the emergency phone number.</small>
+            </div>
+        </div>
+        
+
+        <div class="form-row" style=" {% if request.user.profile.role == 'Agent' %}display:none;{% endif %} ">
+            <div class="form-group col-md-6">
+                {{ form.role.label_tag }}
+                {{ form.role }}
+                {% for error in form.role.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the user's role.</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                {% for error in form.status.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the current status of the user.</small>
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.date_of_joining.label_tag }}
+                {{ form.date_of_joining }}
+                {% for error in form.date_of_joining.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the user's date of joining.</small>
+            </div>
+        </div>
+ 
+        
+        <div class="form-group">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {% for error in form.address.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the address.</small>
+        </div>
+        <br>
+        <div class="Reset_Container">
+            <h4>Reset Password</h4>
+            <span class="helptext" id="id_password_helptext">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-alert"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                Raw passwords are not stored, so there is no way to see this user’s password, but you can change the password using 
+                <a class="reset_password_a"  href="{% url 'password_reset' %}" >Reset Password?</a>.
+            </span>
+            <div class="buttons">
+                <button type="submit" class="btn btn-primary">Update User</button>
+                <a href="{% url 'staff_list' %}" class="cancel-btn">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

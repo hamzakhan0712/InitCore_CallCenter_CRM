@@ -1,0 +1,177 @@
+:root {
+    --gap-size: 0.5rem;
+    --padding-size: 8px;
+    --border-radius: 8px;
+    --font-size-heading: 2.5rem;
+    --font-size-subheading: 1rem;
+    --font-size-secondary: 0.775rem;
+    --button-padding: 10px 20px;
+    --font-size-cancel: 0.875rem;
+}
+
+.form-container {
+    margin: 0 auto;
+}
+
+.heading-bar {
+    margin: 0;
+    padding: var(--padding-size) 0 5px;
+    color: var(--heading-text-color);
+    font-size: var(--font-size-heading);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-size);
+    background-color: var(--hover-color);
+    padding: var(--padding-size);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.heading-bar span:first-of-type {
+    color: var(--heading-text-color);
+    font-size: var(--font-size-subheading);
+    margin-bottom: 2px;
+}
+
+.heading-bar span:last-of-type {
+    color: var(--secondary-text);
+    font-size: var(--font-size-secondary);
+}
+
+.heading-bar-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+}
+
+.form-group {
+    flex: 1;
+    margin-right: 10px;
+}
+
+#create-team-form {
+    position: relative;
+    margin: 20px 80px 0 20px;
+}
+
+#create-team-form p {
+    display: flex;
+    flex-direction: column;
+}
+
+#create-team-form label {
+    display: none;
+}
+
+#create-team-form input,
+#create-team-form select,
+#create-team-form textarea {
+    width: 100%;
+    padding: var(--padding-size);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+#create-team-form input:focus,
+#create-team-form select:focus,
+#create-team-form textarea:focus {
+    border-color: var(--highlighted-border-color);
+}
+
+#create-team-form textarea {
+    resize: vertical;
+    height: 20px; /* Adjust this height as needed */
+    font-family: sans-serif;
+    margin-bottom: 20px;
+}
+
+#id_agents {
+    height: 400px;
+}
+
+#create-team-form button {
+    position: absolute;
+    right: 0;
+    margin-right: 100px;
+    background-color: var(--button-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: var(--button-padding);
+    cursor: pointer;
+    transition: background-color var(--transition);
+    width: max-content;
+}
+
+#create-team-form button:hover {
+    background-color: var(--button-hover-color);
+}
+
+.cancel-btn {
+    text-decoration: none;
+    font-size: var(--font-size-cancel);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+    border-radius: 4px;
+    padding: 8px 20px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.buttons {
+    margin-top: 2rem;
+}
+
+.bottom-buttons {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    left: 8rem;
+    bottom: -4rem;
+}
+
+/* Button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: var(--font-size-secondary);
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.btn:hover {
+    color: var(--heading-text-color);
+    border-color: var(--heading-text-color);
+}
+
+#create-team-form h4,
+#create-team-form ul,
+#create-team-form li {
+    margin: 0;
+}
+
+#create-team-form li {
+    margin-bottom: 5px;
+}
+
+.text-muted {
+    font-size: var(--font-size-secondary);
+    color: var(--secondary-text);
+    margin-left: 5px;
+    margin-top: 4px;
+}

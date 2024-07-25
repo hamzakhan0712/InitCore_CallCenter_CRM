@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Agent Sales History
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_history.css' %}">
+
+  <div class="container">
+    <h2>Agent Sales History - {{ agent.get_full_name }}</h2>
+    
+    <form id="sales_history" method="POST" novalidate>
+      {% csrf_token %}
+        <div class="form-group col-md-6">
+            {{ form.commitment.label_tag }}
+            {{ form.commitment }}
+            {% for error in form.commitment.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+        </div>
+    <button type="submit" class="btn btn-primary">Update Sales</button>
+    </form>
+
+    <div class="table-wrapper">
+        <h3>History for Lead {{ agent.get_full_name }}</h3>
+        <table class="lead_history_table">
+        <thead>
+            <tr>
+            <th>Last Updated At</th>
+            <th>Commitment (Target)</th>
+            <th>Updated By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales_history %}
+            <tr>
+                <td>{{ sale.date_time }}</td>
+                <td>₹ {{ sale.commitment|floatformat:0|intcomma }}/-</td>
+                {% if request.user.is_superuser %}
+                    <td>{{ sale.updated_by.username }}</td>
+                {% else %}
+                    <td>{{ sale.updated_by.get_full_name }}</td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No sales history available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+  </div>
+{% endblock %}

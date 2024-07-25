@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Lead Mapping
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_mapping.css' %}">
+<div class="mapping-container">
+    <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-merge">
+            <path d="m8 6 4-4 4 4"/>
+            <path d="M12 2v10.3a4 4 0 0 1-1.172 2.872L4 22"/>
+            <path d="m20 22-5-5"/>
+        </svg>
+         Lead Mapping
+    </h2>
+    <form method="POST">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Lead Field</th>
+                    <th>CSV Column</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field in lead_fields %}
+                <tr>
+                    <td>{{ field }}</td>
+                    <td>
+                        <select name="mapping">
+                            <option value="">--- Select Column ---</option>
+                            {% for column in header %}
+                            <option value="{{ column }}">{{ column }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Import Leads</button>
+    </form>
+</div>
+
+{% endblock %}
+
+
+

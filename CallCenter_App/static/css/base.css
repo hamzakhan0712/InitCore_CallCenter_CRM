@@ -1,0 +1,96 @@
+:root {
+  --background-color: #ffffff;
+  --button-color: rgb(37, 99, 235);
+  --button-hover-color: rgb(58, 114, 236);
+  --border-color: #e2e8f0;
+  --highlighted-border-color: #2563eb;
+  --row-hover-color: #f8fafc;
+  --hover-color: #f1f5f9;
+  --heading-text-color: #020817;
+  --text-color: #282d3a;
+  --secondary-text: #64748b;
+  --active-color: var(--button-color);
+
+  /* Notification Colors */
+  --success-color: #4CAF50;
+  --error-color: #f44336;
+  --warning-color: #FF9800;
+  --info-color: #2196F3;
+  --golden-color: #FFD700;
+
+  --scrollbar-thumb-color: #888;
+  --scrollbar-track-color: #f1f1f1;
+
+  /* Transition */
+  --transition: all 0.3s ease;
+
+  /* Box Shadow */
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.main-body {
+  margin-left: 3.5rem;
+  margin-top: 4.3rem;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.5);
+  cursor: pointer;
+}
+
+.more-options {
+  cursor: pointer;
+  stroke: var(--scrollbar-thumb-color);
+  transition: var(--transition);
+}
+
+.more-options:hover {
+  stroke: #000;
+}
+
+.text-danger {
+  color: var(--error-color);
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.pagination .step-links {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination a {
+  color: var(--button-color);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: var(--box-shadow);
+}
+
+.pagination a:hover {
+  background-color: var(--hover-color);
+  border-color: var(--highlighted-border-color);
+}
+
+.pagination .current {
+  color: var(--text-color);
+  padding: 5px 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--hover-color);
+  box-shadow: var(--box-shadow);
+}

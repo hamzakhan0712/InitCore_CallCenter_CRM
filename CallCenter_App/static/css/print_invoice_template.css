@@ -1,0 +1,254 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+.container {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    width: 100%;
+    height: auto;
+}
+
+.invoice-preview {
+    margin: 10px !important;
+    display: table-cell;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.header {
+    display: table;
+    width: 100%;
+    justify-content: space-between;
+    border-bottom: 2px solid #020817;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+
+.logo, .invoice-heading, .invoice-title {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.logo img {
+    border-radius: 50%;
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+}
+
+.logo{
+    text-align: left;
+    padding-right: 10px;
+}
+
+.invoice-heading {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.invoice-heading p:first-of-type {
+    font-size: 32px;
+    margin: 0;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.invoice-heading p:last-of-type {
+    font-size: 20px;
+    margin: 0;
+}
+
+.invoice-title {
+    padding-left: auto;
+    font-size: 32px;
+    text-align: right;
+    color: #020817;
+}
+
+.upper-mid {
+    display: table;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.customer-details {
+    display: table-cell;
+    text-align: left;
+    vertical-align: top;
+    width: 50%; /* Adjust width as needed */
+}
+
+.company-details {
+    display: table-cell;
+    text-align: right;
+    vertical-align: top;
+    width: 50%; /* Adjust width as needed */
+}
+
+.customer-details .detail, .company-details .detail {
+    margin-bottom: 10px;
+}
+
+.customer-details .detail label, .company-details .detail label {
+    font-weight: bold;
+    color: #020817;
+    font-size: 0.975rem;
+}
+
+.customer-details .detail span {
+    color: #020817;
+    font-size: 1rem;
+}
+
+.company-details .company-name {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 15px;
+}
+
+.company-details .detail{
+    font-size: 1rem;
+}
+
+
+.lower-mid {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    margin: 1rem 0;
+}
+
+.lower-mid th, .lower-mid td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lower-mid th {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-weight: normal;
+    font-size: 0.975rem;
+}
+
+.lower-mid tbody tr:last-of-type td {
+    border-bottom: none;
+}
+
+.amount-in-words {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.amount-in-words .label_amount_in_words {
+    background-color: #020817;
+    color: #ffffff;
+    padding: 5px 8px;
+    font-weight: bold;
+    width: 20%;
+    text-align: left;
+    font-size: 0.875rem;
+    
+}
+
+.amount-in-words .span_amount_in_words {
+    background-color: #f1f5f9;
+    padding: 8px;
+    width: 80%;
+    font-size: 0.975rem;
+}
+
+
+.package-details{
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    margin-top: 20px;
+}
+
+.package-details th, .package-details td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.package-details th {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+.bottom {
+    width: 100%;
+    display: table;
+    margin-top: 30px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.thank-you-section {
+    float: left;
+    width: 58%; /* Adjust width as needed */
+}
+
+.thank-you-section h2 {
+    color: green;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.thank-you-section p {
+    font-size: 0.975rem;
+    line-height: 1.5;
+    color: #020817;
+    text-align: justify;
+}
+
+.summary-section {
+    float: right;
+    width: 38%; /* Adjust width as needed */
+}
+
+.summary-section table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+}
+
+.summary-section th, .summary-section td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-section th {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+
+.summary-section tbody tr:last-of-type td {
+    border-bottom: none;
+}
+
+.summary-section tbody td {
+    font-size: 0.925rem;
+    color: #020817;
+}

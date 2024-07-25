@@ -1,0 +1,112 @@
+.table-wrapper {
+    width: 100%;
+    overflow: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 18px;
+    width: 1px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #999;
+    cursor: pointer;
+}
+
+.table-wrapper h1 {
+    text-align: left;
+    margin: 1rem;
+    color: var(--secondary-text);
+}
+
+.lead_history_table {
+    width: 98%;
+    border-collapse: collapse;
+    font-size: 0.925rem;
+    text-align: left;
+    margin: 10px auto; /* Center align the table */
+}
+
+.lead_history_table thead tr {
+    background-color: var(--hover-color);
+    color: var(--secondary-text);
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.775rem;
+}
+
+.lead_history_table tbody tr:hover {
+    background-color: var(--row-hover-color);
+}
+
+.lead_history_table th,
+.lead_history_table td {
+    padding: 12px 15px;
+    color: var(--heading-text-color);
+    vertical-align: middle;
+    font-size: 0.925rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: capitalize !important;
+}
+
+.container h2 {
+    color: var(--heading-text-color);
+    margin: 0;
+    margin-top: 4rem;
+    padding: 1rem;
+    border-bottom: 2px solid var(--button-color);
+}
+
+#sales_history {
+    display: flex;
+    align-items: center; /* Adjusted alignment */
+    justify-content: space-between; /* Adjusted spacing */
+    padding: 20px;
+    background-color: var(--hover-color);
+    margin: 10px auto; /* Center align the section */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+#sales_history label {
+    font-size: 0.875rem;
+    color: var(--secondary-text);
+    margin-bottom: 5px; /* Added margin for spacing */
+}
+
+#sales_history input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    transition: var(--transition);
+    margin-top: 5px;
+    font-size: 0.875rem; /* Adjusted font size for consistency */
+}
+
+#sales_history input:focus {
+    border-color: var(--highlighted-border-color);
+}
+
+#sales_history button {
+    background-color: var(--button-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color var(--transition);
+    width: max-content;
+    font-size: 0.875rem; /* Adjusted font size for consistency */
+}
+
+#sales_history button:hover {
+    background-color: var(--button-hover-color);
+}

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Create Customers
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+<div class="form-container">
+    
+    <div class="heading-bar">
+      <div class="heading-bar-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      </div>
+      <div class="heading-bar-text">
+        <span class="primary-text">New Paid Customer Entry</span>
+        <span class="secondary-text">Enter details for a new paid customer in the system.</span>
+      </div>
+    </div>  
+  
+    <form id="create-form" method="POST" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          {{ form.payment_date.label_tag }}
+          {{ form.payment_date }}
+          {% for error in form.payment_date.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Select the payment date.</small>
+        </div>
+
+        <div class="form-group col-md-6" style="position:relative;">
+          {{ form.contact_number.label_tag }}
+          <input type="tel" id="id_contact_number" class="form-control" name="contact_number" placeholder="Auto Search Contact Number or Full Name" autocomplete="off">
+          
+          <div id="contactSuggestions" class="autocomplete-items"></div>
+          
+          {% for error in form.contact_number.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Provide a valid contact number for the paid customer.</small>
+        </div>
+      
+      <script>
+        document.getElementById('id_contact_number').addEventListener('input', function() {
+          var input = this.value;
+          var suggestions = document.getElementById('contactSuggestions');
+          
+          if (input.length >= 2) {
+              fetch(`/autocomplete-leads/?query=${input}&field=full_name_or_contact_number`)
+                  .then(response => response.json())
+                  .then(data => {
+                      suggestions.innerHTML = '';
+                      data.forEach(item => {
+                          var option = document.createElement('div');
+                          var fullName = item.full_name.toLowerCase();
+                          var contactNumber = item.contact_number.toLowerCase();
+                          var indexFullName = fullName.indexOf(input.toLowerCase());
+                          var indexContactNumber = contactNumber.indexOf(input.toLowerCase());
+      
+                          if (indexFullName !== -1) {
+                              option.innerHTML = `${item.full_name.substring(0, indexFullName)}<strong>${item.full_name.substring(indexFullName, indexFullName + input.length)}</strong>${item.full_name.substring(indexFullName + input.length)} - ${item.contact_number}`;
+                          } else if (indexContactNumber !== -1) {
+                              option.innerHTML = `${item.full_name} - ${item.contact_number.substring(0, indexContactNumber)}<strong>${item.contact_number.substring(indexContactNumber, indexContactNumber + input.length)}</strong>${item.contact_number.substring(indexContactNumber + input.length)}`;
+                          } else {
+                              option.textContent = `${item.full_name} - ${item.contact_number}`;
+                          }
+      
+                          option.addEventListener('click', function() {
+                              document.getElementById('id_contact_number').value = item.contact_number;
+                              suggestions.innerHTML = '';
+                          });
+      
+                          suggestions.appendChild(option);
+                      });
+                  });
+          } else {
+              suggestions.innerHTML = '';
+          }
+        });
+      
+      </script>
+      
+
+        <div class="form-group col-md-6">
+          {{ form.package.label_tag }}
+          {{ form.package }}
+          {% for error in form.package.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Select the package purchased by the customer.</small>
+        </div>
+
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          {{ form.package_end_date.label_tag }}
+          {{ form.package_end_date }}
+          {% for error in form.package_end_date.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Enter Package Ending Date.</small>
+        </div>
+  
+        <div class="form-group col-md-6">
+          {{ form.payment_method.label_tag }}
+          {{ form.payment_method }}
+          {% for error in form.payment_method.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Select the payment method used.</small>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          {{ form.transaction_id.label_tag }}
+          {{ form.transaction_id }}
+          {% for error in form.transaction_id.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Enter the transaction ID.</small>
+        </div>
+  
+        <div class="form-group col-md-6">
+          {{ form.pan_number.label_tag }}
+          {{ form.pan_number }}
+          {% for error in form.pan_number.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Enter the PAN number of the customer.</small>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        
+  
+        <div class="form-group col-md-6">
+          {{ form.amount_paid.label_tag }}
+          {{ form.amount_paid }}
+          {% for error in form.amount_paid.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Enter the amount paid by the customer.</small>
+        </div>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          {{ form.attachment.label_tag }}
+          {{ form.attachment }}
+          {% for error in form.attachment.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Upload any attachment related to the payment (if any).</small>
+        </div>
+  
+        <div class="form-group col-md-6">
+          {{ form.payment_status.label_tag }}
+          {{ form.payment_status }}
+          {% for error in form.payment_status.errors %}
+            <small class="form-text text-danger">{{ error }}</small>
+          {% endfor %}
+          <small class="form-text text-muted">Enter the payment status.</small>
+        </div>
+      </div>
+  
+      <div class="bottom-buttons">
+        <button type="submit" class="btn btn-primary">Create Paid Customer</button>
+        <a href="{% url 'paid_customers' %}" class="cancel-btn">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+
+
+
+

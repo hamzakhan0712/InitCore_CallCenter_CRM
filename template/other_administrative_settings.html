@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Other Administrative Settings
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/other_administrative_settings.css' %}">
+
+
+<div class="heading-bar">
+    <div class="heading-bar-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cog"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/></svg>
+    </div>
+    <div class="heading-bar-text">
+        <span class="primary-text">Other Administrative Settings</span>
+        <span class="secondary-text">Access additional administrative settings for customization and control.</span>
+    </div>
+</div>
+
+
+<div class="settings-list">
+
+    <div class="setting-item">
+        <a href="#" class="toggle-link" style="text-decoration: none;">
+            <div class="setting-item-bar-heading">
+                <div class="setting-item-bar-svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hourglass"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+                </div>
+                <div class="setting-item-bar-text">
+                    <span class="setting-item-primary-text">Add New Break Type</span>
+                    <span class="setting-item-secondary-text">Create a new type of break.</span>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-down chevrons-toggle"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>
+        </a>
+        <div class="toggle-container">
+            <form method="post" action="{% url 'other_administrative_settings' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ break_type_form.name }}
+                    <small class="form-text">Name of the Break Type.</small>
+                </div>
+
+                <button type="submit" name="break_type_submit" class="btn btn-primary">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="other_setting_table">
+        <thead>
+            <tr>
+                <td style="width:5%;">Sr.No</td>
+                <td> Break name </td>
+                <td style="width:5%;"> Delete </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for break in all_breaks %}
+            <tr>
+                <td style="width:5%;">{{ break.id }}</td>
+                <td>{{ break.name }}</td>
+                <td style="width:5%;">
+                    <form method="post" action="{% url 'delete_break' break.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <div class="setting-item">
+        <a href="#" class="toggle-link" style="text-decoration: none;">
+            <div class="setting-item-bar-heading">
+                <div class="setting-item-bar-svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package-plus"><path d="M16 16h6"/><path d="M19 13v6"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
+                </div>
+                <div class="setting-item-bar-text">
+                    <span class="setting-item-primary-text">Add New Package</span>
+                    <span class="setting-item-secondary-text">Create a new package.</span>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-down chevrons-toggle"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>
+        </a>
+        <div class="toggle-container">
+            <form method="post" action="{% url 'other_administrative_settings' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ package_form.name }}
+                    <small class="form-text">Name of the Package.</small>
+                </div>
+                <button type="submit" name="package_submit" class="btn btn-primary">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="other_setting_table">
+        <thead>
+            <tr>
+                <td style="width:5%;">Sr.No</td>
+                <td> Package name </td>
+                <td style="width:5%;"> Delete </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for package in all_package %}
+            <tr>
+                <td style="width:5%;">{{ package.id }}</td>
+                <td>{{ package.name }}</td>
+                <td style="width:5%;">
+                    <form method="post" action="{% url 'delete_package' package.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="setting-item">
+        <a href="#" class="toggle-link" style="text-decoration: none;">
+            <div class="setting-item-bar-heading">
+                <div class="setting-item-bar-svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+                </div>
+                <div class="setting-item-bar-text">
+                    <span class="setting-item-primary-text">Add New Sub Disposition</span>
+                    <span class="setting-item-secondary-text">Create a new sub disposition.</span>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-down chevrons-toggle"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>
+        </a>
+        <div class="toggle-container">
+            <form method="post" action="{% url 'other_administrative_settings' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ sub_disposition_form.name }}
+                    <small class="form-text">Name of the Sub-Disposition.</small>
+                </div>
+
+                <button type="submit" name="sub_disposition_submit" class="btn btn-primary">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="other_setting_table">
+        <thead>
+            <tr>
+                <td style="width:5%;">Sr.No</td>
+                <td> Sub Disposition name </td>
+                <td style="width:5%;"> Delete </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub_disposition in all_sub_disposition %}
+            <tr>
+                <td style="width:5%;">{{ sub_disposition.id }}</td>
+                <td>{{ sub_disposition.name }}</td>
+                <td style="width:5%;">
+                    <form method="post" action="{% url 'delete_sub_disposition' sub_disposition.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="setting-item">
+        <a href="#" class="toggle-link" style="text-decoration: none;">
+            <div class="setting-item-bar-heading">
+                <div class="setting-item-bar-svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2" ry="2"/><path d="M2 10h20"/></svg>
+                </div>
+                <div class="setting-item-bar-text">
+                    <span class="setting-item-primary-text">Add New Payment Method</span>
+                    <span class="setting-item-secondary-text">Create a new payment method.</span>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-down chevrons-toggle"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>
+        </a>
+        <div class="toggle-container">
+            <form method="post" action="{% url 'other_administrative_settings' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    {{ payment_method_form.name }}
+                    <small class="form-text">Name of the Payment Method.</small>
+                </div>
+                <button type="submit" name="payment_method_submit" class="btn btn-primary">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="other_setting_table">
+        <thead>
+            <tr>
+                <td style="width:5%;">Sr.No</td>
+                <td> Payment Method name </td>
+                <td style="width:5%;"> Delete </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment_method in all_payment_method %}
+            <tr>
+                <td style="width:5%;">{{ payment_method.id }}</td>
+                <td>{{ payment_method.name }}</td>
+                <td style="width:5%;">
+                    <form method="post" action="{% url 'delete_payment_method' payment_method.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.toggle-link').click(function(e){
+            e.preventDefault();
+            var $toggleContainer = $(this).next('.toggle-container');
+            $toggleContainer.slideToggle();
+            $(this).find('.chevrons-toggle').toggleClass('rotated');
+        });
+    });
+</script>
+
+{% endblock %}

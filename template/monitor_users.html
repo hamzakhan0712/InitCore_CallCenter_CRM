@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Monitor Users
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/monitor_users.css' %}">
+
+<div class="container">
+    <h1>Users Currently on Break</h1>
+    <div class="user-list" id="userList">
+    </div>
+    <div class="no-users-message" id="noUsersMessage" style="display: none;">
+        No users are currently on break.
+    </div>
+</div>
+
+<script>
+    let TL_socket
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        TL_socket = new WebSocket(`ws://${window.location.host}/ws/break-monitor/all/`);
+
+        loadBreakState();
+        updateNoUsersMessage();
+  
+        TL_socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('AllBreaks WebSocket message received:', data);
+            if (data.type === 'break_started' || data.type === 'break_ended') {
+                updateActiveBreaks(data); 
+                updateNoUsersMessage();
+            } else if (data.user_id) {
+                updateUserBreakState(data); 
+                updateNoUsersMessage();
+            }
+        };
+  
+        TL_socket.onclose = function (event) {
+            console.error('AllBreaks WebSocket closed unexpectedly');
+        };
+
+        fetchRecentBreaks();
+    });
+  
+    function fetchRecentBreaks() {
+        fetch('/get_recent_breaks/')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(breakEvent => {
+                    updateUserBreakState(breakEvent);
+                });
+                updateNoUsersMessage();
+            })
+            .catch(error => console.error('Error fetching recent breaks:', error));
+    }
+  
+    function updateUserBreakState(data) {
+        const userList = document.getElementById('userList');
+        const userId = data.user_id;
+        let userBox = document.getElementById(`user_${userId}`);
+        if (!userBox && !data.on_break) {
+            return;
+        }
+  
+        if (!userBox) {
+            userBox = document.createElement('div');
+            userBox.id = `user_${userId}`;
+            userBox.classList.add('user-box');
+            userBox.innerHTML = `
+                <div class="user-info">
+                    <div class="user-name">${data.user_name}</div>
+                    <div class="user-role">${data.user_role}</div>
+                </div>
+                <div class="break-info">
+                    <div class="break-status">On Break</div>
+                    <div class="break-type">${data.break_type}</div>
+                    <div class="break-start-time">Since: ${formatTime(data.start_time)}</div>
+                </div>
+            `;
+            userList.appendChild(userBox);
+        }
+  
+        if (data.on_break) {
+            userBox.querySelector('.user-info .user-name').textContent = data.user_name;
+            userBox.querySelector('.user-info .user-role').textContent = data.user_role;
+            userBox.querySelector('.break-info .break-type').textContent = data.break_type;
+            userBox.querySelector('.break-info .break-start-time').textContent = `Since: ${formatTime(data.start_time)}`;
+            userBox.querySelector('.break-info .break-status').textContent = 'On Break';
+            saveBreakState(userId, data);
+        } else {
+            userBox.remove();
+            removeBreakState(userId);
+        }
+    }
+  
+    function formatTime(dateTimeStr) {
+        const date = new Date(dateTimeStr);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        return `${formattedHours}:${formattedMinutes} ${period}`;
+    }
+  
+    function saveBreakState(userId, data) {
+        const breakState = JSON.parse(localStorage.getItem('breakState')) || {};
+        breakState[userId] = data;
+        localStorage.setItem('breakState', JSON.stringify(breakState));
+    }
+  
+    function removeBreakState(userId) {
+        const breakState = JSON.parse(localStorage.getItem('breakState')) || {};
+        delete breakState[userId];
+        localStorage.setItem('breakState', JSON.stringify(breakState));
+    }
+  
+    function loadBreakState() {
+        const breakState = JSON.parse(localStorage.getItem('breakState')) || {};
+        for (const userId in breakState) {
+            updateUserBreakState(breakState[userId]);
+        }
+    }
+  
+    function updateNoUsersMessage() {
+        const userList = document.getElementById('userList');
+        const noUsersMessage = document.getElementById('noUsersMessage');
+        const userBoxes = userList.getElementsByClassName('user-box');
+        if (userBoxes.length === 0) {
+            noUsersMessage.style.display = 'block';
+        } else {
+            noUsersMessage.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

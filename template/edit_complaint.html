@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Edit Complaint
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+<div class="form-container">
+
+  <div class="heading-bar">
+    <div class="heading-bar-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+    </div>
+    <div class="heading-bar-text">
+      <span class="primary-text">Edit Complaint Details</span>
+      <span class="secondary-text">Update the details of this complaint in the system.</span>
+    </div>
+  </div>
+
+  <form id="create-form" method="POST" novalidate>
+    {% csrf_token %}
+    <div class="form-row">
+     
+      <div class="form-group col-md-6">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+        {% for error in form.name.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+        <small class="form-text text-muted">Enter the Name of the complaint.</small>
+      </div>
+        
+      <div class="form-group col-md-6">
+        {{ form.subject.label_tag }}
+        {{ form.subject }}
+        {% for error in form.subject.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+        <small class="form-text text-muted">Enter the subject of the complaint.</small>
+      </div>
+
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        {{ form.priority.label_tag }}
+        {{ form.priority }}
+        {% for error in form.priority.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+        <small class="form-text text-muted">Select the priority level of the complaint.</small>
+      </div>
+
+      <div class="form-group col-md-6">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+        {% for error in form.status.errors %}
+          <small class="form-text text-danger">{{ error }}</small>
+        {% endfor %}
+        <small class="form-text text-muted">Select the current status of the complaint.</small>
+      </div>
+    </div>
+
+    <div class="form-group col-md-6">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {% for error in form.description.errors %}
+        <small class="form-text text-danger">{{ error }}</small>
+      {% endfor %}
+      <small class="form-text text-muted">Provide a detailed description of the complaint.</small>
+    </div>
+
+    <div class="buttons">
+      <button type="submit">Update Complaint</button>
+      <a href="{% url 'complaints_list' %}" class="cancel-btn">Cancel</a>
+    </div>
+    
+  </form>
+
+</div>
+
+{% endblock %}

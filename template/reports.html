@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Reports
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/reports.css' %}">
+
+<div class="heading-bar">
+    <div class="heading-bar-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text">
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+            <path d="M10 9H8"/>
+            <path d="M16 13H8"/>
+            <path d="M16 17H8"/>
+        </svg>
+    </div>
+    <div class="heading-bar-text">
+        <span class="primary-text">Reports of Users & Teams</span>
+        <span class="secondary-text">Access detailed reports on user activities and team performance.</span>
+    </div>
+</div>
+
+<div class="main-container">
+
+    <div class="section-1">
+        {% if not request.user.profile.role == 'Agent' %}
+            <form id="roleFilterForm" method="GET">
+                <select id="teamLeaderFilter" name="team_leader">
+                    <option value="all_teams" {% if current_team_leader == 'all_teams' %} selected {% endif %}>All Teams</option>
+                    {% for team_leader in team_leaders %}
+                        <option value="{{ team_leader.id }}" {% if current_team_leader == team_leader.id %} selected {% endif %}>{{ team_leader.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="agentFilter" name="agent" {% if not current_team_leader %} disabled {% endif %}>
+                    <option value="" selected>Select Agent</option>
+                    {% for agent in agents %}
+                        <option value="{{ agent.id }}" {% if current_agent == agent.id %} selected {% endif %}>{{ agent.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const teamLeaderFilter = document.getElementById('teamLeaderFilter');
+                    const agentFilter = document.getElementById('agentFilter');
+                
+                    teamLeaderFilter.value = "{{ current_team_leader }}";
+                    if ("{{ current_team_leader }}" !== "all_teams") {
+                        agentFilter.removeAttribute('disabled');
+                    }
+                    agentFilter.value = "{{ current_agent }}";
+                    teamLeaderFilter.addEventListener('change', () => {
+                        document.getElementById('roleFilterForm').submit();
+                    });
+                    
+                    agentFilter.addEventListener('change', () => {
+                        document.getElementById('roleFilterForm').submit();
+                    });
+                });
+            </script>
+            
+        {% endif %}
+        <div class="table-wrapper">
+            <table id="leadsTable">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Lead Count</th>
+                        <th>Agent Report</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsBody">
+                    {% for lead in leads %}
+                    <tr data-lead-id="{{ lead.assigned_to_id }}" data-lead-username="{{ lead.assigned_to.get_full_name }}" class="lead-row">
+                        <td>
+                            {% for agent in agents %}
+                                {% if agent.id == lead.assigned_to_id %}
+                                    {{ agent.user.get_full_name }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ lead.count }}</td>
+                        <td style="padding:0;">
+                            <form class="sub-disposition-form" method="post" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="assigned_to_user_id" value="{{ lead.assigned_to_id }}">
+                                <input type="hidden" name="role" value="{{ request.user.profile.role }}"> 
+                            </form>
+                            <button class="export-report-btn">Export Report</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No leads found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section-2">
+        <div class="table-wrapper">
+            <table id="leadsTable">
+                <thead>
+                    <tr>
+                        <th style="font-size:1.2rem; text-align:left; padding: 20px 10px; background-color:#f8fafc;color:#020817;" colspan="2">Sub Dispositions: </th>
+                    </tr>
+                    <tr>
+                        <th>Sub Disposition</th>
+                        <th>Lead Count</th>
+                    </tr>
+                </thead>
+                <tbody id="subDispositionsBody">
+                    {% for sub_disposition in sub_dispositions %}
+                    <tr class="{% if sub_disposition.sub_disposition__name in 'Hangup, Wrong number, Dead Air, Not Interested' %}sub-disposition-light-red{% elif sub_disposition.sub_disposition__name == 'Paid Customer' %}sub-disposition-light-green{% elif sub_disposition.sub_disposition__name == 'Fresh' %}sub-disposition-light-blue{% else %}sub-disposition-light-orange{% endif %}"
+                        onclick="openModal('{{ sub_disposition.sub_disposition__name }}')">
+                        <td>{{ sub_disposition.sub_disposition__name }}</td>
+                        <td>{{ sub_disposition.lead_count }}</td>
+                    </tr>
+                    {% empty %}    
+                    <tr>
+                        <td colspan="2">No sub dispositions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="leadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Leads for Sub-Disposition <span id="modalSubDisposition"></span></h2>
+            {% if request.user.is_superuser %}
+                <button onclick="exportTableToCSV('leads_sub_disposition.csv')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>  
+                    Export
+                </button>
+            {% endif %}
+            <div class="table-wrapper">
+                <table id="leadDetailsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Full Name</th>
+                            <th>Contact Number</th>
+                            <th>State</th>
+                            <th>Capital</th>
+                            <th>Disposition</th>
+                            <th>Sub Disposition</th>
+                            <th>Remark</th>
+                            <th>Assigned To</th>
+                            <th>Assigned Team</th>
+                            <th>Team Leader</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadDetailsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-3">
+        <h2 style="margin: 0;">Disposition Pie Chart</h2>
+        <div id="pieChart">
+            <canvas id="subDispositionPieChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tablebody = document.getElementById('subDispositionsBody');
+            if (!tablebody) {
+                console.error('Table with ID "leadsTable" not found.');
+                return;
+            }
+    
+            const rows = tablebody.querySelectorAll('tr');
+            const labels = [];
+            const data = [];
+            const backgroundColors = [];
+    
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 2) {
+                    const name = cells[0].innerText.trim();
+                    const count = parseInt(cells[1].innerText.trim(), 10);
+                    labels.push(name);
+                    data.push(count);
+    
+                    if (['Hangup', 'Wrong number', 'Dead Air', 'Not Interested'].includes(name)) {
+                        backgroundColors.push('#ff00151a'); 
+                    } else if (name === 'Paid Customer') {
+                        backgroundColors.push('#00ff3c1a'); 
+                    } else if (name === 'Fresh') {
+                        backgroundColors.push('#007bff1a');
+                    } else {
+                        backgroundColors.push('#ffc4001a'); 
+                    }
+                }
+            });
+    
+            const ctx = document.getElementById('subDispositionPieChart');
+            if (!ctx) {
+                console.error('Canvas with ID "subDispositionPieChart" not found.');
+                return;
+            }
+    
+            const subDispositionPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `${tooltipItem.label}: ${tooltipItem.raw} leads`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.lead-row').forEach(row => {
+                row.addEventListener('click', () => {
+                    row.querySelector('.sub-disposition-form').submit();
+                });
+            });
+    
+            document.querySelectorAll('.export-report-btn').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    var userId = this.closest('.lead-row').dataset.leadId;  
+                    var userFullName = this.closest('.lead-row').dataset.leadUsername;
+                    exportLeadReport(userId, userFullName);
+                });
+            });
+    
+            function exportLeadReport(userId, userFullName) {
+                console.log(`Exporting report for user ID: ${userId}, Name: ${userFullName}`);  
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/reports/export-lead-report/?user_id=' + userId, true);
+                xhr.responseType = 'blob';
+    
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var a = document.createElement('a');
+                        var url = window.URL.createObjectURL(xhr.response);
+                        a.href = url;
+                        a.download = 'lead_report_user_' + encodeURIComponent(userFullName) + '.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        console.error(`Failed to export report for user ID: ${userId}, Status: ${xhr.status}`);  
+                    }
+                };
+                xhr.send();
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const agentId = urlParams.get('agent'); // Get agent ID from URL parameter
+
+            window.openModal = (subDisposition) => {
+                document.getElementById('modalSubDisposition').innerText = subDisposition;
+                fetchLeads(subDisposition, agentId); // Pass agentId to fetchLeads function
+                document.getElementById('leadModal').style.display = 'block';
+                document.getElementById('modalOverlay').style.display = 'block';
+            }
+
+            window.closeModal = () => {
+                document.getElementById('leadModal').style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+            }
+
+            const fetchLeads = (subDisposition, agentId) => {
+                const queryParams = new URLSearchParams();
+                queryParams.append('sub_disposition', subDisposition);
+                if (agentId) {
+                    queryParams.append('agent_id', agentId);
+                }
+
+                fetch(`/api/leads/?${queryParams.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const leadDetailsBody = document.getElementById('leadDetailsBody');
+                        leadDetailsBody.innerHTML = '';
+                        data.forEach(lead => {
+                            leadDetailsBody.innerHTML += `
+                                <tr>
+                                    <td>${lead.id}</td>
+                                    <td>${lead.date}</td>
+                                    <td>${lead.full_name}</td>
+                                    <td>${lead.contact_number}</td>
+                                    <td>${lead.state}</td>
+                                    <td>Rs.${lead.capital}/-</td>
+                                    <td>${lead.disposition}</td>
+                                    <td>${lead.sub_disposition__name}</td>
+                                    <td>${lead.remark}</td>
+                                    <td>${lead.assigned_to_full_name}</td>
+                                    <td>${lead.assigned_to_team__name}</td>
+                                    <td>${lead.assigned_to_team_leader_full_name}</td>
+                                </tr>`;
+                        });
+
+                        document.getElementById('leadDetailsModal').style.display = 'block';
+                    });
+            }
+
+
+            if (agentId) {
+                const initialSubDisposition = document.getElementById('modalSubDisposition').innerText;
+                fetchLeads(initialSubDisposition, agentId);
+            }
+            
+            window.exportTableToCSV = (filename) => {
+                const csv = [];
+                const rows = document.querySelectorAll('#leadDetailsTable tr');
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('td, th');
+                    const rowData = Array.from(cols).map(col => col.innerText.replace(/,/g, ''));
+                    csv.push(rowData.join(','));
+                });
+                downloadCSV(csv.join('\n'), filename);
+            }
+        
+            const downloadCSV = (csv, filename) => {
+                const csvFile = new Blob([csv], { type: 'text/csv' });
+                const downloadLink = document.createElement('a');
+                downloadLink.download = filename;
+                downloadLink.href = window.URL.createObjectURL(csvFile);
+                downloadLink.style.display = 'none';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+        });
+    </script> 
+
+</div>
+
+{% endblock %}

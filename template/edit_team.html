@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Edit Team
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_team.css' %}">
+
+
+<div class="form-container">
+    <div class="heading-bar">
+        <div class="heading-bar-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+        </div>
+        <div class="heading-bar-text">
+            <span class="primary-text">Edit Team</span>
+            <span class="secondary-text">Modify the details of the selected team below.</span>
+        </div>
+        
+    </div>
+
+    <form class="confirmation-form" id="create-team-form" method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                <small class="form-text text-muted">Enter the name of the team.</small>
+
+            </div>
+            <div class="form-group col-md-6">
+                {{ form.leader.label_tag }}
+                {{ form.leader }}
+                <small class="form-text text-muted">Select the team leader from the list.</small>
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form.agents.label_tag }}
+            {{ form.agents }}
+            <small class="form-text text-muted">Select agents to add to the team.</small>
+        </div>
+        <div class="buttons">
+            <button type="submit">Update Team</button>
+            <a href="{% url 'staff_list' %}" class="cancel-btn">Cancel</a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

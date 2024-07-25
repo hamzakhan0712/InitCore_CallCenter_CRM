@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Attendance
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_list.css' %}">
+
+<div class="filter-section"> 
+    <form method="GET" action="{% url 'attendance' %}">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search_query" placeholder="Search by User..." value="{{ search_query }}">
+                <div class="help-text">Search Full Name</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ start_date }}">
+                <div class="help-text">Start date to filter</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ end_date }}">
+                <div class="help-text">End date to filter</div>
+            </div>
+            {% if request.user.is_superuser %}
+            <div class="form-group">
+                <select class="form-control" name="role">
+                    <option value="" selected >No Role</option>
+                    <option value="Team Leader" {% if role == 'Team Leader' %}selected{% endif %}>Team Leader</option>
+                    <option value="Agent" {% if role == 'Agent' %}selected{% endif %}>Agent</option>
+                </select>
+                <div class="help-text">Filter by Roles</div>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <select class="form-control" name="status">
+                    <option value="" selected >No Status</option>
+                    <option value="Present" {% if status == 'Present' %}selected{% endif %}>Present</option>
+                    <option value="Half day" {% if status == 'Half day' %}selected{% endif %}>Half day</option>
+                    <option value="Absent" {% if status == 'Absent' %}selected{% endif %}>Absent</option>
+                </select>
+                <div class="help-text">Filter by Status</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="on_time_late">
+                    <option value="" selected>No Login Status</option>
+                    <option value="On Time" {% if on_time_late == 'On Time' %}selected{% endif %}>On Time</option>
+                    <option value="Late" {% if on_time_late == 'Late' %}selected{% endif %}>Late</option>
+                </select>
+                <div class="help-text">Filter by Login Status</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Apply</button>
+        </div>
+    </form>  
+    <div class="bottom-filter-tag">
+        <a href="?date_filter=today" class="filter-tag">Today</a>
+        <a href="?date_filter=this_week" class="filter-tag">This Week</a>
+        <a href="?date_filter=this_month" class="filter-tag">This Month</a>
+        <a href="?date_filter=last_6_months" class="filter-tag">Last 6 Months</a>
+        <a href="?date_filter=this_year" class="filter-tag">This Year</a>
+    </div>
+</div>
+
+{% if request.user.is_superuser %}
+    <form method="GET" action="{% url 'export_attendance' %}" class="export_attendance">
+        <button type="submit" class="btn btn-success mt-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/>
+            </svg>
+            Export to Excel
+        </button>
+        <div class="export_attendance_group">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="export_type" id="exportTeamLeaders" value="team_leaders">
+                <label class="form-check-label" for="exportTeamLeaders">
+                    Export Team Leaders' Attendance
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="export_type" id="exportAgents" value="agents" checked>
+                <label class="form-check-label" for="exportAgents">
+                    Export Agents' Attendance
+                </label>
+            </div>
+        </div>
+    </form>
+{% endif %}
+<div class="table-wrapper">
+    <table class="lead-table">
+        <thead>
+            <tr>
+                <th>Date & Day</th>
+                <th>Full Name</th>
+                <th>Login Time</th>
+                <th>Logout Time</th>
+                <th>Status</th>
+                <th>On Time or Late</th>
+                <th>Total Login Time</th>
+                <th>Total Break Time</th>
+                <th>Regulation Reason</th>
+                <th>Breaks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attendance in attendances %}
+            <tr>
+                <td class="attendance_name_role">
+                    <span>{{ attendance.date }} </span>
+                    <br>
+                    <span>({{ attendance.day }})</span>
+                </td>
+                <td class="attendance_name_role">
+                    <span>{{ attendance.user.user.get_full_name }} </span>
+                    <br>
+                    <span>({{ attendance.user.role }})</span>
+                </td>
+                <td>{{ attendance.login_time }}</td>
+                <td>{{ attendance.logout_time }}</td>
+                <td>{{ attendance.status }}</td>
+                <td>{{ attendance.on_time_late }}</td>
+                <td>{{ attendance.total_login_time_hours }} hours {{ attendance.total_login_time_minutes }} minutes</td>
+                <td>{{ attendance.total_break_time_hours }} hours {{ attendance.total_break_time_minutes }} minutes</td>
+                <td>
+                    {% if user.is_superuser or user.role == 'Team Leader' %}
+                    <form class="regulation_reason_form" method="post" action="{% url 'update_regulation_reason' attendance.id %}">
+                        {% csrf_token %}
+                        <input type="text" name="regulation_reason" value="{{ attendance.regulation_reason }}">
+                        <button type="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
+                        </button>
+                    </form>
+                    {% else %}
+                    {{ attendance.regulation_reason }}
+                    {% endif %}
+                </td>
+                <td>
+                    <table class="lead-table">
+                        <thead>
+                            <tr>
+                                <th style="font-size:0.675rem;">Break Type</th>
+                                <th style="font-size:0.675rem;">Break Starts</th>
+                                <th style="font-size:0.675rem;">Break Ends</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for break_obj in attendance.breaks.all %}
+                            <tr>
+                                <td style="font-size:0.775rem;">{{ break_obj.break_type.name }}</td>
+                                <td style="font-size:0.775rem;">{{ break_obj.start_time }}</td>
+                                <td style="font-size:0.775rem;">{{ break_obj.end_time }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="15">No Attendance found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if attendances.has_previous %}
+            <a href="?page=1">&laquo; First</a>
+            <a href="?page={{ attendances.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ attendances.number }} of {{ attendances.paginator.num_pages }}.
+        </span>
+
+        {% if attendances.has_next %}
+            <a href="?page={{ attendances.next_page_number }}">Next</a>
+            <a href="?page={{ attendances.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% load static %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+  
+  {% if company and company.company_logo %}
+  <link rel="icon" type="image/png" href="{{ company.company_logo.url }}">
+  {% else %}
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+  {% endif %}
+  
+  <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+  {% include 'navbar.html' %}
+  <div class="main-body">
+    {% block content %}{% endblock %}
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/c5af9607d4.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>

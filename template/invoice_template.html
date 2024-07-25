@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Invoice Template
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/invoice_template.css' %}">
+
+    <div class="container">
+        <form method="POST" enctype="multipart/form-data" class="invoice-form">
+            {% csrf_token %}
+            <div class="header">
+                <div class="logo">
+                    <div class="form-group upload-img">
+                        {{ form.company_logo }}
+                        <button type="button" class="upload-btn" onclick="document.getElementById('id_company_logo').click();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus">
+                                <path d="M5 12h14"/><path d="M12 5v14"/>
+                            </svg>
+                        </button>
+                        <img id="logo_preview" src="{% if form.company_logo.value %}{{ form.company_logo.value.url }}{% endif %}" alt="Logo">
+                    </div>
+                    <div class="invoice-heading">
+                        {{ form.company_name }}
+                        {{ form.company_tagline }}
+                    </div>
+                </div>
+                <p class="invoice-title">
+                    INVOICE
+                </p>
+            </div>
+            
+            <div class="upper-mid">
+
+                <div class="customer-details">
+                    <div class="detail">
+                        <label for="date">Date & Time:</label>
+                        <span id="date">24 March 2023 23:15 P.M. </span>
+                    </div>
+                    <div class="detail">
+                        <label for="invoice_number">Invoice Number:</label>
+                        <span id="invoice_number">59223623</span>
+                    </div>
+                    <div class="detail">
+                        <label for="invoice_number">Customer Unique ID:</label>
+                        <span id="invoice_number">123456789012</span>
+                    </div>
+                    <div class="detail">
+                        <label for="package_details">Package Details:</label>
+                        <span id="package_details">INDEX OPTIONS BASIC</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_name">Customer Name:</label>
+                        <span id="customer_name">Abhishek Bhadauria</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_phone">Phone:</label>
+                        <span id="customer_phone">9718878103</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_pan">PAN:</label>
+                        <span id="customer_pan">CAAPP9887R</span>
+                    </div>
+                </div>
+
+                <div class="company-details">
+                    <div class="detail">
+                        <p class="company-name">Company Name</p>
+                    </div>
+                    <div class="detail">
+                        {{ form.company_address }}
+                    </div>
+                    <div class="detail">
+                        {{ form.company_phone_number }}
+                    </div>
+                    <div class="detail">
+                        {{ form.company_email }}
+                    </div>
+                    <div class="detail">
+                        {{ form.company_gstin }}
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="lower-mid">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Payment Date</th>
+                            <th>Payment Mode</th>
+                            <th>Amount with GST</th>
+                            <th>Tax Amount</th>
+                            <th>Paid Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>24 March 2023</td>
+                            <td>Credit Card</td>
+                            <td>₹ 85,000/-</td>
+                            <td>₹ 69,700/-</td>
+                            <td>₹ 15,300/-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="amount-in-words">
+                    <div class="label_amount_in_words">
+                        <label for="amount_in_words">Amount In Words:</label>
+                    </div>
+                    <div class="span_amount_in_words">
+                        <span id="amount_in_words">Rs. TWELVE THOUSANDS FIVE HUNDRED ONLY</span>
+                    </div>
+                </div>
+                <div class="package-details">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer Id</th>
+                                <th>Package</th>
+                                <th>Service Start Date</th>
+                                <th>Service End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>592</td>
+                                <td>Index Options Basic</td>
+                                <td>24 March 2023</td>
+                                <td>03 April 2023</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bottom">
+                <div class="thank-you-section">
+                    <h2>Thank you!</h2>
+                    {{ form.company_about }}
+                </div>
+                <div class="summary-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">SUMMARY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount with GST</td>
+                                <td>₹ 69,700/-</td>
+                            </tr>
+                            <tr>
+                                <td>Tax Amount</td>
+                                <td>₹ 15,300/-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GRAND TOTAL</strong></td>
+                                <td><strong>₹ 85,000/-</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
+            <button class="invoice-submit-btn" type="submit">Save</button>
+        </form>
+
+        <div class="invoice-preview">
+            <div class="header">
+                <div class="logo">
+                    <div class="form-group upload-img">
+                        {% if company.company_logo %}
+                            <img src="{{ company.company_logo.url }}" alt="Company Logo">
+                        {% else %}
+                            <p>No logo available</p>
+                        {% endif %}
+                    </div>
+                    <div class="invoice-heading">
+                        <p>{{ company.company_name }}</p>
+                        <p>{{ company.company_tagline }}</p>
+                    </div>
+                </div>
+                <p class="invoice-title">
+                    PREVIEW
+                </p>
+            </div>
+        
+            <div class="upper-mid">
+
+                <div class="customer-details">
+                    <div class="detail">
+                        <label for="date">Date & Time:</label>
+                        <span id="date">24 March 2023 23:15 P.M.</span>
+                    </div>
+                    <div class="detail">
+                        <label for="invoice_number">Invoice Number:</label>
+                        <span id="invoice_number">59223623</span>
+                    </div>
+                    <div class="detail">
+                        <label for="invoice_number">Customer Unique ID:</label>
+                        <span id="invoice_number">123456789012</span>
+                    </div>
+                    <div class="detail">
+                        <label for="package_details">Package Details:</label>
+                        <span id="package_details">INDEX OPTIONS BASIC</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_name">Customer Name:</label>
+                        <span id="customer_name">Abhishek Bhadauria</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_phone">Phone:</label>
+                        <span id="customer_phone">9718878103</span>
+                    </div>
+                    <div class="detail">
+                        <label for="customer_pan">PAN:</label>
+                        <span id="customer_pan">CAAPP9887R</span>
+                    </div>
+                </div>
+
+                <div class="company-details">
+                    <div class="detail">
+                        <p class="company-name">{{ company.company_name }}</p>
+                    </div>
+                    <div class="detail">
+                        {{ company.company_address }}
+                    </div>
+                    <div class="detail">
+                        {{ company.company_phone_number }}
+                    </div>
+                    <div class="detail">
+                        {{ company.company_email }}
+                    </div>
+                    <div class="detail">
+                        {{ company.company_gstin }}
+                    </div>
+                </div>
+
+            </div>
+        
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Payment Date</th>
+                            <th>Payment Mode</th>
+                            <th>Amount with GST</th>
+                            <th>Tax Amount</th>
+                            <th>Paid Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>24 March 2023</td>
+                            <td>Credit Card</td>
+                            <td>₹ 85,000/-</td>
+                            <td>₹ 69,700/-</td>
+                            <td>₹ 15,300/-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="amount-in-words">
+                    <div class="label_amount_in_words">
+                        <label for="amount_in_words">Amount In Words:</label>
+                    </div>
+                    <div class="span_amount_in_words">
+                        <span id="amount_in_words">Rs. TWELVE THOUSANDS FIVE HUNDRED ONLY</span>
+                    </div>
+                </div>
+                <div class="package-details">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer Id</th>
+                                <th>Package</th>
+                                <th>Service Start Date</th>
+                                <th>Service End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>592</td>
+                                <td>Index Options Basic</td>
+                                <td>24 March 2023</td>
+                                <td>03 April 2023</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        
+            <div class="bottom">
+                <div class="thank-you-section">
+                    <h2>Thank you!</h2>
+                    <p>{{ company.company_about }}</p>
+                </div>
+                <div class="summary-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">SUMMARY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount with GST</td>
+                                <td>₹ 69,700/-</td>
+                            </tr>
+                            <tr>
+                                <td>Tax Amount</td>
+                                <td>₹ 15,300/-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GRAND TOTAL</strong></td>
+                                <td><strong>₹ 85,000/-</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>        
+    </div>
+
+    <script>
+        document.getElementById('id_company_logo').addEventListener('change', function(event) {
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logo_preview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    </script>
+
+{% endblock %}

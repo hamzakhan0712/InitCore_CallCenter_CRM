@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Edit Customers
+{% endblock %}
+
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/create_user.css' %}">
+
+<div class="form-container">
+
+    <div class="heading-bar">
+      <div class="heading-bar-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil">
+          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+          <path d="m15 5 4 4"/>
+        </svg>
+      </div>
+      <div class="heading-bar-text">
+        <span class="primary-text">Edit Paid Customer Details</span>
+        <span class="secondary-text">Update the details of this lead in the system.</span>
+      </div>
+    </div>
+  
+    <form id="create-form" method="POST" novalidate>
+      {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.payment_date.label_tag }}
+                {{ form.payment_date }}
+                {% for error in form.payment_date.errors %}
+                    <small class="form-text text-danger">{{ error }}</small>
+                {% endfor %}
+                <small class="form-text text-muted">Select the payment date.</small>
+            </div>
+    
+            <div class="form-group col-md-6">
+            {{ form.contact_number.label_tag }}
+            {{ form.contact_number }}
+            {% for error in form.contact_number.errors %}
+                <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Provide a valid contact number for the customer.</small>
+            </div>
+    
+          
+        <div class="form-group col-md-6">
+            {{ form.package.label_tag }}
+            {{ form.package }}
+            {% for error in form.package.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Select the package purchased by the customer.</small>
+          </div>
+  
+        </div>
+    
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.package_end_date.label_tag }}
+            {{ form.package_end_date }}
+            {% for error in form.package_end_date.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter Package Ending Date.</small>
+          </div>
+    
+          <div class="form-group col-md-6">
+            {{ form.payment_method.label_tag }}
+            {{ form.payment_method }}
+            {% for error in form.payment_method.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Select the payment method used.</small>
+          </div>
+        </div>
+    
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.transaction_id.label_tag }}
+            {{ form.transaction_id }}
+            {% for error in form.transaction_id.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the transaction ID.</small>
+          </div>
+    
+          <div class="form-group col-md-6">
+            {{ form.pan_number.label_tag }}
+            {{ form.pan_number }}
+            {% for error in form.pan_number.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the PAN number of the customer.</small>
+          </div>
+        </div>
+    
+        <div class="form-row">
+          
+    
+          <div class="form-group col-md-6">
+            {{ form.amount_paid.label_tag }}
+            {{ form.amount_paid }}
+            {% for error in form.amount_paid.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the amount paid by the customer.</small>
+          </div>
+        </div>
+    
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.attachment.label_tag }}
+            {{ form.attachment }}
+            {% for error in form.attachment.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Upload any attachment related to the payment (if any).</small>
+          </div>
+    
+          <div class="form-group col-md-6">
+            {{ form.payment_status.label_tag }}
+            {{ form.payment_status }}
+            {% for error in form.payment_status.errors %}
+              <small class="form-text text-danger">{{ error }}</small>
+            {% endfor %}
+            <small class="form-text text-muted">Enter the payment status.</small>
+          </div>
+        </div>
+        
+      <div class="buttons">
+        <button type="submit">Update Customer</button>
+        <a href="{% url 'paid_customers' %}" class="cancel-btn">Cancel</a>
+      </div>
+    </form>
+</div>
+{% endblock %}

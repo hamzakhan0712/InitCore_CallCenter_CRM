@@ -1,0 +1,290 @@
+/* Add your CSS rules here */
+.filter-section {
+    background-color: var(--hover-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+}
+
+.form-group{
+    margin-right: 10px;
+}
+
+.filter-section input[name="search"]{
+    margin-right: 200px;
+    width: 80%;
+}
+
+.filter-section input,select{
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    transition: var(--transition);
+  }
+  
+  .filter-section input:focus,select:focus{
+      border-color: var(--highlighted-border-color);
+  }
+
+
+
+.help-text{
+    font-size: 0.775rem;
+    color: var(--secondary-text);
+    margin-left: 5px;
+    margin-top: 3px;
+}
+
+.tab {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    gap: 1rem;
+    padding: 10px;
+}
+
+.tab button {
+    border: 1px solid var(--border-color);
+    outline: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    transition:var(--transition);
+    font-size: 0.875rem;
+    border-radius: 4px;
+    background-color: var(--background-color);
+}
+
+.tab button:hover {
+    background-color: var(--hover-color);
+}
+
+.tab button.active {
+    border-color: var(--highlighted-border-color);
+}
+
+.tabcontent {
+    width: 100%;
+    display: none;
+    border-top: none;
+    margin: auto;
+}
+
+.table-wrapper{
+    width: 100%;
+    overflow: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 18px;
+    width: 1px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #999;
+    cursor: pointer;
+}
+
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.925rem;
+    text-align: left;
+}
+
+.staff-table thead tr {
+    background-color: var(--hover-color);
+    color: var(--secondary-text);
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.775rem;
+}
+
+
+.staff-table th, .staff-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    text-align: center;
+}
+
+.status-active {
+    font-weight: bold;
+    color: green;
+}
+.status-inactive {
+    font-weight: bold;
+    color: red;
+}
+.status-on-resign {
+    font-weight: bold;
+    color: rgb(235, 199, 0);
+}
+
+
+.staff-table tbody tr {
+    text-align: center;
+    font-size: 0.925rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.staff-table tbody tr:hover{
+    background-color: var(--row-hover-color);
+}
+
+
+/* Styles for the action buttons */
+.action-col {
+    vertical-align: middle;
+}
+
+.action-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-group a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.action-group a:first-child {
+    margin-top: 0;
+}
+
+.action-colo-text{
+    display: block;
+}
+
+
+/* Button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.775rem;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    cursor: pointer;
+    background-color: transparent;
+    transition: var(--transition);
+}
+
+.btn:hover{
+    color: var(--heading-text-color);
+    border-color: var(--heading-text-color);
+}
+
+
+.btn-primary svg{
+    color: var(--button-color);
+}
+
+
+.btn-secondary svg{
+    color: var(--warning-color);
+}
+
+.btn-tertiary svg{
+    color: var(--secondary-text);
+}
+
+.btn-tertiary.checked{
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-tertiary.checked svg{
+    color: var(--success-color);
+}
+
+.btn-success svg{
+    color: var(--success-color);
+}
+
+.btn-alert svg{
+    color: var(--error-color);
+}
+
+.btn svg {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+
+.staff-table .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 25px;
+}
+
+.staff-table .switch input {
+    display: none;
+}
+
+.staff-table .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+}
+
+.staff-table .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px; /* Adjusted to center the knob */
+    bottom: 3.5px; /* Adjusted to center the knob */
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.staff-table input:checked + .slider {
+    background-color: #009879;
+}
+
+.staff-table input:checked + .slider:before {
+    transform: translateX(19px); /* Adjusted for correct sliding distance */
+}
+
+.team_row{
+    border-top: 3px solid var(--border-color) !important;
+    border-bottom: 1px solid var(--button-color) !important;
+    background-color: var(--background-color);
+}
+
+.team_row td{
+    padding: 10px;
+    font-size: 1rem;
+    color: var(--heading-text-color);
+    background-color: var(--background-color);
+    
+    border-bottom: 1px solid var(--button-color) !important;
+}
+

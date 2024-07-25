@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Staff
+{% endblock %}
+
+
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/staff_list.css' %}">
+
+<div class="filter-section">
+    <form method="GET" action="{% url 'staff_list' %}">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search" placeholder="Search..." value="{{ search_query }}">
+                <div class="help-text">Search for specific staff members</div>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="sort">
+                    <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                    <option value="full_name" {% if sort_by == 'full_name' %}selected{% endif %}>Full Name</option>
+                    <option value="date_of_joining" {% if sort_by == 'date_of_joining' %}selected{% endif %}>Date of Joining</option>
+                </select>
+                <div class="help-text">Sort staff members by</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ start_date }}">
+                <div class="help-text">Start date to filter</div>
+            </div>
+            <div class="form-group">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ end_date }}">
+                <div class="help-text">End date to filter</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb; margin-bottom:20px;">Apply</button>
+        
+        </div>
+
+    </form>
+</div>
+
+<div class="tab">
+    {% if request.user.is_superuser %}
+        <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'team_leaders')">Team Leaders</button>
+        <button class="tablinks" onclick="openTab(event, 'agents')">Agents</button>
+        <button class="tablinks" onclick="openTab(event, 'teams')">Teams</button>
+    {% elif request.user.profile.role == 'Team Leader' %}
+        <button class="tablinks" style="display:none;" onclick="openTab(event, 'team_leaders')">Team Leaders</button>
+        <button class="tablinks active" id="defaultOpen" onclick="openTab(event, 'teams')">My Team</button>
+        <button class="tablinks" style="display:none;"  onclick="openTab(event, 'agents')">Agents</button>
+    {% endif %}
+</div>
+
+
+<div class="tab-container">
+ 
+    <div id="team_leaders" class="tabcontent">
+        <div class="table-wrapper">
+            <table class="staff-table">
+                <thead>
+                    <tr>
+                        <th>Date of Joining</th>
+                        <th>Full Name</th>
+                        <th>Address</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Emergency Mobile</th>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Status</th>
+                        <th colspan="3">Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for userprofile in team_leaders %}
+                        <tr>
+                            <td>{{ userprofile.date_of_joining }}</td>
+                            <td>{{ userprofile.user.get_full_name }}</td>
+                            <td>{{ userprofile.address }}</td>
+                            <td>{{ userprofile.user.email }}</td>
+                            <td>{{ userprofile.phone_number }}</td>
+                            <td>{{ userprofile.emergency_phone_number }}</td>
+                            <td>{{ userprofile.role }}</td>
+                            <td>{{ userprofile.user.username }}</td>
+                            <td>
+                                <span class="action-colo-text {% if userprofile.status == 'Active' %}status-active{% elif userprofile.status == 'Inactive' %}status-inactive{% elif userprofile.status == 'On Resign Period' %}status-on-resign{% endif %}">{{ userprofile.status }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_user' userprofile.id %}" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                    Edit
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'delete_user' userprofile.user.id %}" class="btn btn-alert">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                    Delete
+                                </a>
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" {% if userprofile.status == "Active" %}checked{% endif %} data-user-id="{{ userprofile.id }}">
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
+                        </tr>
+                        
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if team_leaders.has_previous %}
+                    <a href="?page=1&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">&laquo; first</a>
+                    <a href="?page={{ team_leaders.previous_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">previous</a>
+                {% endif %}
+    
+                <span class="current">
+                    Page {{ team_leaders.number }} of {{ team_leaders.paginator.num_pages }}.
+                </span>
+    
+                {% if team_leaders.has_next %}
+                    <a href="?page={{ team_leaders.next_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">next</a>
+                    <a href="?page={{ team_leaders.paginator.num_pages }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+
+    <div id="agents" class="tabcontent">
+        <div class="table-wrapper"> 
+            <table class="staff-table">
+                <thead>
+                    <tr>
+                        <th>Date of Joining</th>
+                        <th>Full Name</th>
+                        <th>Address</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Emergency Mobile</th>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Status</th>
+                        <th colspan="3">Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for userprofile in agents %}
+                    <tr>
+                        <td>{{ userprofile.date_of_joining }}</td>
+                        <td>{{ userprofile.user.get_full_name }}</td>
+                        <td>{{ userprofile.address }}</td>
+                        <td>{{ userprofile.user.email }}</td>
+                        <td>{{ userprofile.phone_number }}</td>
+                        <td>{{ userprofile.emergency_phone_number }}</td>
+                        <td>{{ userprofile.role }}</td>
+                        <td>{{ userprofile.user.username }}</td>
+                        <td>
+                            <span class="action-colo-text {% if userprofile.status == 'Active' %}status-active{% elif userprofile.status == 'Inactive' %}status-inactive{% elif userprofile.status == 'On Resign' %}status-on-resign{% endif %}">{{ userprofile.status }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_user' userprofile.id %}" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                Edit
+                            </a>
+                        </td> 
+                        <td>
+                            <a href="{% url 'delete_user' userprofile.id %}" class="btn btn-alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                Delete
+                            </a>
+                        </td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" {% if userprofile.status == "Active" %}checked{% endif %} data-user-id="{{ userprofile.id }}">
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">No Agents Details found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span class="step-links">
+                {% if agents.has_previous %}
+                    <a href="?page=1&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">&laquo; first</a>
+                    <a href="?page={{ agents.previous_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">previous</a>
+                {% endif %}
+    
+                <span class="current">
+                    Page {{ agents.number }} of {{ agents.paginator.num_pages }}.
+                </span>
+    
+                {% if agents.has_next %}
+                    <a href="?page={{ agents.next_page_number }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">next</a>
+                    <a href="?page={{ agents.paginator.num_pages }}&search={{ search_query }}&sort={{ sort_by }}&start_date={{ start_date }}&end_date={{ end_date }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div id="teams" class="tabcontent">
+        <div class="table-wrapper"> 
+        {% if request.user.is_superuser %}
+            {% for team in teams %}
+                <table class="staff-table">
+                    <thead>
+                        <tr class="team_row">
+                            <td colspan="2">Team Name: {{ team.name }}</td>
+                            <td colspan="2">Leader: {{ team.leader.user.get_full_name }}</td>
+                            <td colspan="1">{{ team.agents.count }} Members</td>
+                            <td colspan="5"></td>
+                            <td colspan="1">
+                                <a href="{% url 'edit_team' team.id %}" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                    Edit
+                                </a>
+                            </td>
+                            <td colspan="1">
+                                <a href="{% url 'delete_team' team.id %}" class="btn btn-alert">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Emergency Mobile</th>
+                            <th>Date of Joining</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Username</th>
+                            <th>Control</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in team.agents.all %}
+                        <tr>
+                            <td>{{ agent.user.get_full_name }}</td>
+                            <td>{{ agent.address }}</td>
+                            <td>{{ agent.user.email }}</td>
+                            <td>{{ agent.phone_number }}</td>
+                            <td>{{ agent.emergency_phone_number }}</td>
+                            <td>{{ agent.date_of_joining }}</td>
+                            <td>{{ agent.get_role_display }}</td>
+                            <td>{{ agent.get_status_display }}</td>
+                            <td>{{ agent.user.username }}</td>
+                            <td>
+                                <a href="{% url 'remove_agent_from_team' team.id agent.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-alert" style="margin:0;" type="submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-minus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                                        Remove
+                                    </button>
+                                </a>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10">No Agents Details found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+
+        {% endif %}
+        {% if request.user.profile.role == 'Team Leader' %}
+            <table class="staff-table">
+                <thead>
+                    <tr class="team_row">
+                        <td colspan="1">Team Name: {{ my_team.name }}</td>
+                        <td colspan="1">Leader: {{ my_team.leader.user.get_full_name }}</td>
+                        <td colspan="1">Members: {{ my_team.agents.count }}</td>
+
+                    </tr>
+                    <tr >
+                        <th>Full Name</th>
+                        <th>Address</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Emergency Mobile</th>
+                        <th>Date of Joining</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        {% if not request.user.profile.role == 'Agent' %}
+                            <th>Username</th>
+                            <th>Control</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in my_team_members %}
+                    <tr>
+                        <td>{{ agent.user.get_full_name }}</td>
+                        <td>{{ agent.address }}</td>
+                        <td>{{ agent.user.email }}</td>
+                        <td>{{ agent.phone_number }}</td>
+                        <td>{{ agent.emergency_phone_number }}</td>
+                        <td>{{ agent.date_of_joining }}</td>
+                        <td>{{ agent.get_role_display }}</td>
+                        <td>{{ agent.get_status_display }}</td>
+                        {% if not request.user.profile.role == 'Agent' %}
+                            <td>{{ agent.user.username }}</td>
+                            <td>
+                                <a href="{% url 'remove_agent_from_team' my_team.id agent.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-alert" style="margin:0;" type="submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-minus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                                        Remove
+                                    </button>
+                                </a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">No Teams Details found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        </div> 
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        function hideAllTabsExcept(tabName) {
+            var tabcontent = document.getElementsByClassName("tabcontent");
+            for (var i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+    
+        function openTab(evt, tabName) {
+            var tablinks = document.getElementsByClassName("tablinks");
+            for (var i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            evt.currentTarget.className += " active";
+            hideAllTabsExcept(tabName);
+            localStorage.setItem('activeTab', tabName); 
+        }
+
+        var activeTab = localStorage.getItem('activeTab') || 'team_leaders'; 
+        document.getElementById(activeTab).style.display = "block";
+        document.querySelector(`button[onclick="openTab(event, '${activeTab}')"]`).className += " active";
+        var tablinks = document.getElementsByClassName("tablinks");
+        for (var i = 0; i < tablinks.length; i++) {
+            tablinks[i].addEventListener('click', function(event) {
+                var tabName = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                openTab(event, tabName);
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.querySelectorAll('.switch input').forEach((toggle) => {
+            toggle.addEventListener('change', function() {
+                const userId = this.getAttribute('data-user-id');
+                const newStatus = this.checked ? 'Active' : 'Inactive';
+                const csrftoken = getCookie('csrftoken');
+    
+                fetch(`/update-user-status/${userId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User status updated successfully.');
+                        location.reload(); 
+                    } else {
+                        alert('Failed to update user status.');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+    });
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
+
+
+{% endblock %}

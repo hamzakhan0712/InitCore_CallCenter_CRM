@@ -1,0 +1,363 @@
+.table-wrapper{
+    width: 100%;
+    overflow: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 18px;
+    width: 1px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #999;
+    cursor: pointer;
+}
+
+
+.paid_customer_lead {
+    width: max-content;
+    border-collapse: collapse;
+    font-size: 0.925rem;
+    text-align: left;
+    
+}
+
+.paid_customer_lead thead tr {
+    background-color: var(--hover-color);
+    color: var(--secondary-text);
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.775rem;
+}
+
+.paid_customer_lead tbody tr:hover{
+    background-color: var(--row-hover-color);
+}
+
+.paid_customer_lead th {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    text-align: center;
+}
+
+.paid_customer_lead td{
+    padding: 12px 15px;
+    color: var(--heading-text-color);
+    vertical-align: middle;
+    font-size: 0.925rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: capitalize !important;
+}
+
+.download-td{
+    padding: 5px !important;
+}
+
+.download-td a{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 7px;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--background-color);
+    font-size: 0.775rem;
+    background-color: var(--button-color);
+    border-radius: 4px;
+    transition: var(--transition);
+    cursor: pointer;
+    border: 1px solid var(--button-color);
+}
+
+.download-td a:hover{
+    background-color: var(--row-hover-color);
+    color: var(--button-color);
+}
+
+.download-td a:hover svg{
+    color: var(--button-color);
+}
+
+.download-td svg{
+    transition: var(--transition);
+    color: var(--background-color);
+}
+
+.remark-col {
+    max-width: 80px;
+    word-wrap: break-word; 
+    white-space: normal; 
+}
+
+
+.status-pending {
+    color: var(--warning-color) !important;  /* Or any other color you prefer for pending status */
+}
+
+.status-completed {
+    color: var(--success-color) !important;  /* Or any other color you prefer for completed status */
+}
+
+.status-failed {
+    color: var(--error-color) !important;  /* Or any other color you prefer for failed status */
+}
+
+.action-col {
+    vertical-align: middle;
+}
+
+.action-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-group a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.action-group a:first-child {
+    margin-top: 0;
+}
+
+.action-colo-text{
+    display: block;
+    margin-bottom: 30px;
+}
+
+.dowwnload-btn{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--button-color);
+    cursor: pointer;
+    background-color: transparent;
+    transition: var(--transition);
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.dowwnload-btn svg{
+    color: var(--button-color);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.775rem;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.btn:hover{
+    color: var(--heading-text-color);
+    border-color: var(--heading-text-color);
+}
+
+
+.btn-primary svg{
+    color: var(--button-color);
+}
+
+
+.btn-secondary svg{
+    color: var(--warning-color);
+}
+
+.btn-tertiary svg{
+    color: var(--secondary-text);
+}
+
+.btn-tertiary.checked{
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-tertiary.checked svg{
+    color: var(--success-color);
+}
+
+.btn-success svg{
+    color: var(--success-color);
+}
+
+.btn-alert svg{
+    color: var(--error-color);
+}
+
+.btn svg {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+
+.form-group .form-control {
+    margin-bottom: 2px;
+}
+
+.help-text {
+    font-size: 0.775rem;
+    color: var(--secondary-text);
+    margin-left: 5px;
+}
+
+
+.button_section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 2.5rem;
+    padding: 10px;
+    background-color: var(--background-color);
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.button_section.sticky {
+    position: fixed;
+    top: 4.28rem;
+    background-color: var(--hover-color);
+    width: 93%;
+    border-bottom: 1px solid var(--button-color);
+}
+
+.button_section .form-group {
+    width: 40%;
+    display: flex;
+    gap: 3rem;
+}
+
+.button_section .form-group-controls {
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.button_section select {
+    width: 100%;
+    
+}
+
+.button_section button {
+    width: 55%;
+}
+
+
+/* Filter section styling */
+.filter-section {
+    background-color: var(--hover-color);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    
+}
+
+.form-group {
+    width: max-content;
+    margin-right: 10px;
+}
+
+.filter-section input[type="text"]{
+    width: 90%;
+}
+
+.filter-section input,select{
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    transition: var(--transition);
+  }
+  
+  .filter-section input:focus,select:focus{
+      border-color: var(--highlighted-border-color);
+  }
+
+
+.filter-section input,select{
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    transition: var(--transition);
+  }
+  
+  .filter-section input:focus,select:focus{
+      border-color: var(--highlighted-border-color);
+  }
+
+  .bottom-filter{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  } 
+
+  #verify-form{
+    display: flex;
+  }
+
+  #customer-details{
+    gap: 10px ;
+
+  }
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* Centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* Close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

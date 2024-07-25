@@ -1,0 +1,58 @@
+.mapping-container {
+    padding: 20px;
+}
+
+h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--button-color);
+    width: max-content;
+    font-size: 1.5rem; /* Adjusted font size for heading */
+}
+
+h2 svg {
+    margin-right: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: var(--hover-color);
+    font-weight: bold;
+    color: var(--secondary-text); /* Added text color for clarity */
+}
+
+select {
+    width: 100%;
+    padding: 8px; /* Adjusted padding for select elements */
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+button {
+    background-color: var(--button-color);
+    color: var(--background-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 4px;
+    transition: background-color var(--transition);
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
+}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if company %}{{ company.company_name }}{% else %}My Application{% endif %}  - Sales
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/lead_list.css' %}">
+
+<div class="filter-section" style="margin-bottom:4rem;"> 
+    <form method="GET" action="{% url 'sales' %}">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="search" class="form-control" name="search_query" placeholder="Search by User..." value="{{ search_query }}">
+                <div class="help-text">Search Full Name</div>
+            </div>
+            {% if request.user.is_superuser %}
+                <div class="form-group">
+                    <select class="form-control" name="team_leader">
+                        <option value="" selected>No Team Leader</option>
+                        {% for tl in team_leaders %}
+                            <option value="{{ tl.id }}" {% if team_leader_id == tl.id %}selected{% endif %}>{{ tl.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Filter by Team Leader</div>
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <select class="form-control" name="sales_achievement">
+                    <option value="" selected>No Sales Achievement</option>
+                    <option value="10" {% if sales_achievement == '10' %}selected{% endif %}>10%</option>
+                    <option value="20" {% if sales_achievement == '20' %}selected{% endif %}>20%</option>
+                    <option value="40" {% if sales_achievement == '40' %}selected{% endif %}>40%</option>
+                    <option value="50" {% if sales_achievement == '50' %}selected{% endif %}>50%</option>
+                    <option value="60" {% if sales_achievement == '60' %}selected{% endif %}>60%</option>
+                    <option value="80" {% if sales_achievement == '80' %}selected{% endif %}>80%</option>
+                    <option value="100" {% if sales_achievement == '100' %}selected{% endif %}>100%</option>
+                </select>
+                <div class="help-text">Filter by Sales Achievement</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="border-color:#2563eb; color:#2563eb;">Apply</button>
+        </div>
+    </form> 
+    {% if request.user.is_superuser %}
+        <div class="bottom-filter">
+            <a href="{% url 'export_sales' %}" class="btn btn-success mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+                Export to Excel
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="table-wrapper">
+    <table style="width:100%;"  class="lead-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Agent Name</th>
+                <th>Team Leader</th>
+                <th>Attendance</th>
+                <th>Count Leads</th>
+                <th>Conversion</th>
+                <th>Invoice Generated</th>
+                <th>Sales</th>
+                <th>Achievements %</th>
+                <th>Commitment (Target)</th>
+                {% if not request.user.profile.role == 'Agent' %}
+                    <th>Update</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for summary in sales_summary %}
+            <tr>
+                <td>{{ summary.rank }}</td>
+                <td>{{ summary.agent.user.get_full_name }}</td>
+                <td>{{ summary.team_leader }}</td>
+                <td>{{ summary.attendance|floatformat:2  }}%</td>
+                <td>{{ summary.lead_count }}</td>
+                <td>{{ summary.conversion|floatformat:2 }}%</td>
+                <td>{{ summary.total_invoice_generated }} Invoice</td>
+                <td>₹ {{ summary.sales|floatformat:0|intcomma }}/-</td>
+                <td>{{ summary.achievements|floatformat:2 }}%</td>
+                <td>₹ {{ summary.commitment|floatformat:0|intcomma }}/-</td>
+                {% if not request.user.profile.role == 'Agent' %}
+                    <td>
+                        <a href="{% url 'agent_sales_history' summary.agent.id %}" class="btn btn-primary">
+                            Update
+                        </a>
+                    </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10">No Sales Details found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
